@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   title: "Stack&Scale | IT Solution Agency",
   description: "We build custom, high-performance websites and web applications for businesses to help them grow their business online and optimize operations.",
   keywords: ["IT Solution Agency", "Web Development", "Business Websites", "Next.js Development", "SEO Optimization", "Online Growth", "Stack and Scale"],
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
   openGraph: {
     title: "Stack&Scale | IT Solution Agency",
     description: "We build custom, high-performance websites and web applications for businesses to help them grow their business online and optimize operations.",
@@ -51,9 +55,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${outfit.variable} ${plusJakartaSans.variable} scroll-smooth`}>
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
       <body className="antialiased selection:bg-blue-500/10 selection:text-blue-900">
         <MotionConfig reducedMotion="user">
           <PagePullLoader />
