@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,650;1,700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-purple-primary: #C85A38; /* Burnt Terracotta Accent */
+  --color-purple-dark: #A24222; /* Deep Terracotta */
+  --color-indigo-primary: #1B1715; /* Deep Warm Espresso */
+  --color-indigo-dark: #120F0E;
+  --color-lavender: #BE5230;
+  --color-cosmic-black: #FAF9F6; /* Warm Ivory/Cream background */
+  --color-cosmic-light: #F7F5F0; /* Slightly darker cream */
+  --color-platinum: #1B1715; /* Charcoal Text */
+  --color-titanium: #574B46; /* Muted brown-grey body text */
+  --color-glass-border: rgba(87, 75, 70, 0.08);
+  
+  /* Overrides for generic blue and slate utility mappings to align with design */
+  --color-blue-50: #FAF4F0;
+  --color-blue-100: #F5E6DD;
+  --color-blue-500: #C85A38;
+  --color-blue-600: #B64E2C;
+  --color-blue-700: #9E3F21;
+  
+  --color-indigo-50: #FAF4F0;
+  --color-indigo-500: #BE5230;
+  --color-indigo-600: #A24222;
+  --color-indigo-900: #1B1715;
+
+  --color-slate-900: #1B1715;
+  --color-slate-850: #26211E;
+  --color-slate-800: #2C2623;
+  --color-slate-700: #3D3531;
+  --color-slate-600: #574B46;
+
+  --color-stone-900: #1B1715;
+  --color-stone-950: #120F0E;
+
+  --color-bronze: #C85A38;
+  --color-bronze-dark: #A24222;
+  --color-obsidian: #FAF9F6;
+  --color-obsidian-light: #F7F5F0;
+  
+  --font-serif: "Lora", Georgia, serif;
+}
+
+:root {
+  --font-heading: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Lora", Georgia, serif;
+  
+  --bg-deep: #FAF9F6; /* Warm ivory/cream background */
+  --bg-card: #FFFFFF; /* Pure white cards */
+  --border-glass: rgba(87, 75, 70, 0.1); /* Soft warm-grey border */
+  --border-active: rgba(200, 90, 56, 0.25); /* Terracotta active glow */
+  
+  --primary: 200, 90, 56; /* Burnt Terracotta */
+  --secondary: 27, 23, 21; /* Deep Espresso */
+  --accent: 27, 23, 21;
+  --cyan-accent: 87, 75, 70;
+}
+
+/* Custom base styles */
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-deep);
+  color: #1C1917;
+  font-family: var(--font-body);
+  font-size: 100%; /* Default readable standard size for mobile */
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 106%; /* Premium scaled typography for desktop viewports */
+  }
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: #1C1917;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.15);
+  border-radius: 99px;
+  border: 2px solid var(--bg-deep);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 99, 235, 0.3);
+}
+
+/* Typography Extensions */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Premium Visual Elements */
+.noise-bg {
+  position: relative;
+}
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center top;
+}
+
+/* Clean, Premium Card Layout */
+.glow-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 24px;
+  transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.glow-card:hover {
+  border-color: rgba(37, 99, 235, 0.2); /* Trust-blue tint */
+  background: #ffffff;
+  transform: translateY(-4px);
+}
+
+/* Text Shimmer Effect */
+.shimmer-text {
+  background: linear-gradient(90deg, #0F172A, #2563EB, #0F172A, #2563EB);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 8s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 300% center; }
+}
+
+/* Floating Animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+.animate-float-slow {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Pulse Glows */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.03; transform: scale(1); }
+  50% { opacity: 0.08; transform: scale(1.06); }
+}
+
+.pulse-glow {
+  animation: glow-pulse 7s ease-in-out infinite;
+}
+
+/* Safe Area Bottom Padding */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+/* Scroll Lock body class */
+body.scroll-lock {
+  overflow: hidden;
+}
+
+/* Animations */
+@keyframes slide-up {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fade-scale {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fade-scale {
+  animation: fade-scale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Touch targets optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
