@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useScroll } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useScroll, useTransform } from 'framer-motion';
 import { useLoaderSync } from './useLoaderSync';
 import { Project, portfolioProjects } from './work/projectsData';
 
@@ -301,13 +301,13 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState<string>("");
 
   useEffect(() => {
-    const sections = ["services", "portfolio", "diagnostics", "offer"];
+    const sections = ["services", "portfolio", "about"];
     const handleScrollSpy = () => {
       const scrollPosition = window.scrollY + 220;
       
       const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 120;
       if (isBottom) {
-        setActiveSection("offer");
+        setActiveSection("about");
         return;
       }
 
@@ -338,7 +338,7 @@ export default function Home() {
   const glowY = useSpring(mouseY, springConfig);
 
 
-  // Cost Estimator state variables
+  // Scope Planner state variables
   const [estType, setEstType] = useState("local"); // local, ecom, custom
   const [addonEmail, setAddonEmail] = useState(false);
   const [addonWhatsapp, setAddonWhatsapp] = useState(false);
@@ -357,39 +357,61 @@ export default function Home() {
   };
   const [activeTechTab, setActiveTechTab] = useState<'frontend' | 'backend' | 'devops'>('frontend');
 
-  // Calibrated Pricing Formula Logic
-  const basePrice = estType === "local" ? 12999 : estType === "ecom" ? 25999 : 21999;
-  const emailCost = addonEmail ? 1000 : 0;
-  const whatsappCost = addonWhatsapp ? 1000 : 0;
-  const paymentCost = addonPayment ? 5000 : 0;
-  const totalPrice = basePrice + emailCost + whatsappCost + paymentCost;
+  // Calibrated Runway Timeline Logic (in days)
+  const baseRunway = estType === "local" ? 14 : estType === "ecom" ? 28 : 21;
+  const emailRunway = addonEmail ? 2 : 0;
+  const whatsappRunway = addonWhatsapp ? 1 : 0;
+  const paymentRunway = addonPayment ? 4 : 0;
+  const totalRunwayDays = baseRunway + emailRunway + whatsappRunway + paymentRunway;
+
+  const formatRunwayText = (days: number) => {
+    const weeks = Math.floor(days / 7);
+    const remainingDays = days % 7;
+    if (weeks > 0 && remainingDays > 0) {
+      return `${weeks} Week${weeks > 1 ? 's' : ''}, ${remainingDays} Day${remainingDays > 1 ? 's' : ''}`;
+    }
+    if (weeks > 0) {
+      return `${weeks} Week${weeks > 1 ? 's' : ''}`;
+    }
+    return `${days} Day${days > 1 ? 's' : ''}`;
+  };
 
   // Roadmap Timeline Calculation
-  const getTimelineDates = () => {
+  const getTimelineDates = (totalDays: number) => {
     const today = new Date();
     const formatDate = (date: Date) => {
-      return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
 
     const designDate = new Date(today);
-    designDate.setDate(today.getDate() + 10);
+    designDate.setDate(today.getDate() + 3);
     const buildDate = new Date(today);
-    buildDate.setDate(today.getDate() + 28);
+    buildDate.setDate(today.getDate() + 8);
     const launchDate = new Date(today);
-    launchDate.setDate(today.getDate() + 42);
+    launchDate.setDate(today.getDate() + totalDays);
 
     return [
-      { label: "Discovery & Blueprint", date: formatDate(today), duration: "Weeks 1-2" },
-      { label: "High-Fidelity Layout Design", date: formatDate(designDate), duration: "Weeks 3-4" },
-      { label: "Full-Stack Implementation", date: formatDate(buildDate), duration: "Weeks 5-6" },
+      { label: "Discovery & Blueprint", date: formatDate(today), duration: "Days 1-3" },
+      { label: "High-Fidelity Layout Design", date: formatDate(designDate), duration: "Days 4-8" },
+      { label: "Full-Stack Implementation", date: formatDate(buildDate), duration: `Days 9-${totalDays - 2}` },
       { label: "Performance Audit & Launch", date: formatDate(launchDate), duration: "Launch Target" }
     ];
   };
 
-  const timelineDates = getTimelineDates();
+  const [timelineDates, setTimelineDates] = useState<{ label: string; date: string; duration: string }[]>([
+    { label: "Discovery & Blueprint", date: "T+0 days", duration: "Days 1-3" },
+    { label: "High-Fidelity Layout Design", date: "T+3 days", duration: "Days 4-8" },
+    { label: "Full-Stack Implementation", date: "T+8 days", duration: "Days 9-12" },
+    { label: "Performance Audit & Launch", date: "T+14 days", duration: "Launch Target" }
+  ]);
+
+  useEffect(() => {
+    setTimelineDates(getTimelineDates(totalRunwayDays));
+  }, [totalRunwayDays]);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 35, restDelta: 0.001 });
+  const progressOpacity = useTransform(scrollYProgress, [0, 0.005], [0, 1]);
 
   const [activeServiceDetail, setActiveServiceDetail] = useState<any | null>(null);
 
@@ -529,7 +551,7 @@ export default function Home() {
       {/* ─── SCROLL PROGRESS INDICATOR ───────────────────── */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 z-[100] origin-left"
-        style={{ scaleX: scrollYProgress }}
+        style={{ scaleX, opacity: progressOpacity }}
       />
 
       {/* ─── AMBIENT GLOW BACKDROP ────────────────────────── */}
@@ -540,14 +562,11 @@ export default function Home() {
         href="https://wa.me/918421526195"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-white/90 backdrop-blur-md text-stone-800 border border-stone-200/80 p-4 rounded-2xl shadow-xl flex items-center justify-center group hover:border-blue-500/30 transition-all duration-300 dynamic-shadow"
-        whileHover={{ scale: 1.03, y: -2 }}
-        whileTap={{ scale: 0.98 }}
+        className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-3 rounded-full shadow-lg flex items-center justify-center group hover:bg-[#20ba5a] transition-all duration-300 dynamic-shadow"
+        whileHover={{ scale: 1.05, y: -2 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <span className="absolute right-full mr-3 bg-stone-50 border border-stone-200 text-stone-700 text-[10px] tracking-wider font-semibold uppercase py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap shadow-md pointer-events-none backdrop-blur-sm">
-          WhatsApp Direct Chat
-        </span>
-        <svg className="w-5 h-5 text-stone-500 group-hover:text-emerald-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4.5 h-4.5 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
         </svg>
       </motion.a>
@@ -555,9 +574,9 @@ export default function Home() {
       {/* ─── NAVIGATION HEADER ────────────────────────────── */}
       <motion.header
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b ${scrolled
-            ? 'bg-white/95 border-stone-200/80 shadow-sm py-3'
-            : 'bg-cosmic-black/90 border-stone-200/30 py-4'
-          } backdrop-blur-xl`}
+            ? 'bg-white/95 border-stone-200/80 shadow-sm py-3 backdrop-blur-xl'
+            : 'bg-transparent border-transparent py-4'
+          }`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -578,10 +597,9 @@ export default function Home() {
           <div className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
             <div className="bg-stone-50 border border-stone-200 p-1 px-1.5 flex items-center gap-1 rounded-full relative shadow-[inset_0_1px_1px_rgba(255,255,255,0.01)]">
               {[
-                { label: "Capabilities", href: "/#services" },
-                { label: "Selected Work", href: "/#portfolio" },
-                { label: "Diagnostics", href: "/#diagnostics" },
-                { label: "Estimator", href: "/#offer" }
+                { label: "Services", href: "/#services" },
+                { label: "Work", href: "/#portfolio" },
+                { label: "About", href: "/#about" }
               ].map((link, idx) => {
                 const targetId = link.href.split('#')[1];
                 const isActive = activeSection === targetId;
@@ -664,11 +682,9 @@ export default function Home() {
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
                 <div className="bg-white/95 backdrop-blur-xl border border-stone-200/80 rounded-2xl p-5 flex flex-col gap-3 shadow-xl z-50 relative">
-                  <Link href="#services" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Capabilities</Link>
-                  <Link href="#portfolio" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Selected Work</Link>
-                  <Link href="#diagnostics" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Diagnostics</Link>
-                  <Link href="#offer" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Estimator</Link>
-                  <Link href="#faq" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">FAQ</Link>
+                  <Link href="#services" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Services</Link>
+                  <Link href="#portfolio" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Work</Link>
+                  <Link href="#about" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">About</Link>
                   <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-blue-600 hover:text-blue-700 transition-colors py-3.5 px-4 hover:bg-blue-50/50 rounded-xl text-xs font-bold tracking-wider uppercase">Start a Project</Link>
                 </div>
               </motion.div>
@@ -712,37 +728,33 @@ export default function Home() {
               variants={staggerItem}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-[64px] tracking-tight mb-6 leading-[1.08] text-stone-900 font-heading font-light max-w-4xl"
             >
-              We build custom websites <br />
-              that actually <span className="font-serif italic font-light text-blue-600">bring you customers.</span>
+              In-house web & IT engineering. <br />
+              <span className="font-serif italic font-light text-blue-600">Zero outsourced code.</span>
             </motion.h1>
 
             <motion.div
               variants={staggerItem}
               className="mb-8 lg:mb-8 text-stone-600 text-sm sm:text-base md:text-lg font-light max-w-2xl"
             >
-              We engineer custom-coded websites and web applications built from scratch to acquire customers, optimize speed, and scale your operations.
+              Our in-house team engineers custom websites, scalable web applications, and comprehensive IT solutions with zero outsourced code, tailored for global businesses.
             </motion.div>
 
             <motion.div
               variants={staggerItem}
-              className="flex flex-col sm:flex-row gap-4.5 justify-center lg:justify-start items-center w-full sm:w-auto"
+              className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center w-full sm:w-auto"
             >
               <Link href="/contact" className="w-full sm:w-auto">
                 <motion.button
-                  className="w-full sm:w-auto bg-stone-900 text-stone-50 font-semibold px-9 py-4 rounded-xl text-sm sm:text-base uppercase tracking-widest flex items-center justify-center gap-2.5 shadow-[0_4px_20px_rgba(28,25,23,0.08)] hover:shadow-[0_4px_25px_rgba(37,99,235,0.15)] transition-all duration-300 hover:bg-stone-850 cursor-pointer"
+                  className="w-full sm:w-auto bg-stone-900 text-stone-50 font-bold px-9 py-4 rounded-xl text-sm uppercase tracking-widest flex items-center justify-center gap-2.5 shadow-[0_4px_20px_rgba(28,25,23,0.08)] hover:shadow-[0_4px_25px_rgba(37,99,235,0.15)] transition-all duration-300 hover:bg-stone-850 cursor-pointer"
                   whileTap={{ scale: 0.98 }}
                 >
                   Start Your Project
                   <svg className="w-4 h-4 stroke-stone-50 stroke-[2.5]" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                 </motion.button>
               </Link>
-              <a href="#portfolio" className="w-full sm:w-auto">
-                <motion.button
-                  className="w-full sm:w-auto bg-transparent border border-stone-300 text-stone-600 hover:text-stone-900 hover:border-stone-400 font-medium px-9 py-4 rounded-xl text-sm sm:text-base uppercase tracking-widest transition-all duration-300 cursor-pointer"
-                  whileTap={{ scale: 0.98 }}
-                >
-                  View Selected Work
-                </motion.button>
+              <a href="#portfolio" className="text-stone-500 hover:text-stone-900 font-bold text-xs uppercase tracking-widest py-3 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0">
+                View Selected Work
+                <svg className="w-3.5 h-3.5 stroke-current stroke-2 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
               </a>
             </motion.div>
 
@@ -779,7 +791,7 @@ export default function Home() {
       </section>
 
       {/* ─── CORE SPEED SHOWCASE SECTION ─── */}
-      <section className="py-12 md:py-20 bg-slate-900 relative border-t border-slate-800 overflow-hidden">
+      <section className="py-12 md:py-20 bg-slate-900 relative overflow-hidden">
         {/* Ambient background grid inside the dark section */}
         <div className="absolute inset-0 grid-bg opacity-10 pointer-events-none z-0" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#0F172A_95%)] pointer-events-none z-0" />
@@ -861,11 +873,8 @@ export default function Home() {
                 High-performance sites focused on your <span className="font-serif italic font-light text-blue-600">bottom line.</span>
               </h2>
               <motion.p className="text-stone-600 text-sm leading-relaxed font-light mb-4 md:mb-5" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}>
-                We design and develop custom React and Next.js sites. Everything we build is clean, fast, mobile-responsive, and directly optimized for local and national search engines.
+                We design and build custom websites, web applications, and tailored IT systems. Everything we engineer is fast, clean, secure, and optimized for global and local search indexing.
               </motion.p>
-              <p className="text-blue-600 text-xs font-semibold">
-                Click any capability below to explore its architecture.
-              </p>
             </div>
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
               <div className="w-full max-w-[320px] aspect-[4/3] bg-white border border-stone-200/80 p-1.5 rounded-[24px] shadow-[0_15px_30px_rgba(0,0,0,0.03)] overflow-hidden hidden lg:block animate-float-medium hover:border-blue-500/20 transition-colors duration-300">
@@ -878,15 +887,15 @@ export default function Home() {
               {[
                 {
                   id: "web-dev",
-                  title: "Custom Web Development",
-                  desc: "High-performance web applications and enterprise platforms built with robust React/Next.js architectures. We design database-efficient backends and headless systems designed for sub-second responses and absolute security.",
-                  features: ["Clean React", "Next.js rendering", "Tailored DBs"],
-                  tag: "Custom Web Applications",
-                  subtitle: "Custom Next.js and React setups built for speed.",
-                  challenge: "Monolithic CMS architectures and template page builders lock businesses into bloated legacy code, slow page load latency, and vulnerability risks.",
-                  solution: "We engineer customized React & Next.js platforms from scratch, ensuring zero template bloat, full API flexibility, and complete repository ownership.",
+                  title: "Web & IT Engineering",
+                  desc: "High-performance websites, custom web applications, and enterprise IT setups. We design secure database backends, custom APIs, cloud infrastructures, and integrations built for speed.",
+                  features: ["Custom Web Apps", "Cloud Systems", "Tailored DBs"],
+                  tag: "Full-Stack & IT Solutions",
+                  subtitle: "Custom web architectures and IT integrations built for speed.",
+                  challenge: "Bloated template builders and generic IT integrations lock businesses into legacy code, slow response times, and security vulnerabilities.",
+                  solution: "We engineer custom website architectures, APIs, and cloud services from scratch, ensuring zero template bloat, complete control, and repository ownership.",
                   lighthouse: { perf: 100, access: 98, best: 100, seo: 100 },
-                  deliverables: ["Custom admin dashboards", "CRM/ERP synchronization", "Speed-optimized cloud delivery", "Zero template bloat"]
+                  deliverables: ["Custom websites & portals", "API & database integrations", "Cloud delivery & security setups", "Complete system ownership"]
                 },
                 {
                   id: "ecom",
@@ -922,7 +931,7 @@ export default function Home() {
                   viewport={{ once: true, margin: "-60px" }}
                   whileHover="hover"
                   onClick={() => setActiveServiceDetail(item)}
-                  className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group cursor-pointer hover:bg-stone-50/50 px-4 -mx-4 rounded-xl transition-all duration-300"
+                  className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group cursor-pointer border border-transparent hover:border-stone-200/50 hover:bg-white hover:shadow-[0_12px_30px_rgba(0,0,0,0.03)] px-6 -mx-6 rounded-[20px] transition-all duration-300"
                 >
                   <div className="max-w-2xl text-left">
                     <span className="text-blue-600 font-mono text-[9px] uppercase tracking-wider font-semibold block mb-2">{item.tag}</span>
@@ -937,8 +946,8 @@ export default function Home() {
                     </div>
                     <motion.div 
                       variants={{
-                        rest: { x: 0, scale: 1, backgroundColor: "#ffffff", borderColor: "rgba(87, 75, 70, 0.1)", color: "#574B46" },
-                        hover: { x: 4, scale: 1.02, backgroundColor: "#C85A38", borderColor: "#C85A38", color: "#ffffff" }
+                        rest: { x: 0, scale: 1, backgroundColor: "rgba(37, 99, 235, 0.05)", borderColor: "rgba(37, 99, 235, 0.15)", color: "#2563eb" },
+                        hover: { x: 6, scale: 1.05, backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
                       }}
                       initial="rest"
                       className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300"
@@ -999,7 +1008,7 @@ export default function Home() {
       </section>
 
       {/* ─── OUR MISSION & PHILOSOPHY ─── */}
-      <section className="py-16 md:py-24 bg-white relative border-t border-stone-200/60 overflow-hidden">
+      <section id="about" className="py-16 md:py-24 bg-white relative border-t border-stone-200/60 overflow-hidden">
         {/* Decorative background visual elements */}
         <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.02),transparent_40%)] pointer-events-none" />
@@ -1042,7 +1051,7 @@ export default function Home() {
               {[
                 { num: "01", step: "Discovery & Strategy", desc: "Analyzing your business goals, target audience, and structuring a map to optimize conversions." },
                 { num: "02", step: "Aesthetic UI/UX Design", desc: "Creating a premium, minimal visual design system and interactive mockups tailored to your brand." },
-                { num: "03", step: "Web Engineering", desc: "Building a high-performance Next.js/React frontend with lightweight dependencies and quick response times." },
+                { num: "03", step: "Web & IT Engineering", desc: "Building high-performance websites and secure IT setups using modern, lightweight architectures tailored for speed." },
                 { num: "04", step: "SEO Audit & Launch", desc: "Validating Core Web Vitals to achieve near-perfect performance scores, testing schemas, and deploying to production." }
               ].map((p, idx) => (
                 <motion.div
@@ -1272,8 +1281,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Mobile Tab Selector */}
-          <div className="flex md:hidden items-center justify-center bg-stone-50 border border-stone-200 p-1 rounded-xl mb-6">
+          {/* Tech Stack Tab Selector */}
+          <div className="flex items-center justify-center bg-stone-50 border border-stone-200 p-1 rounded-xl mb-6 max-w-md mx-auto w-full">
             {[
               { id: 'frontend', label: 'Frontend' },
               { id: 'backend', label: 'Backend & DB' },
@@ -1289,90 +1298,98 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Frontend Column */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 ${activeTechTab === 'frontend' ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}
-            >
-              <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">Frontend Core</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {toolkitItems.filter(t => t.category === "frontend").map((item) => (
-                  <motion.div
-                    key={item.name}
-                    whileHover={{ x: 3 }}
-                    className="p-2.5 rounded-xl bg-stone-50/60 border border-stone-200/80 hover:border-blue-500/30 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
-                  >
-                    <div className="w-7 h-7 rounded-md bg-white border border-stone-200 group-hover:border-blue-500/20 flex items-center justify-center transition-all shrink-0">
-                      {item.svgIcon}
-                    </div>
-                    <span className="font-semibold text-stone-700 text-xs group-hover:text-stone-900 transition-colors">{item.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+          <div className="w-full">
+            <AnimatePresence mode="wait">
+              {activeTechTab === 'frontend' && (
+                <motion.div 
+                  key="frontend"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 w-full max-w-4xl mx-auto flex flex-col"
+                >
+                  <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">Frontend Core</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {toolkitItems.filter(t => t.category === "frontend").map((item) => (
+                      <motion.div
+                        key={item.name}
+                        whileHover={{ x: 3 }}
+                        className="p-2.5 rounded-xl bg-stone-50/60 border border-stone-200/80 hover:border-blue-500/30 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-white border border-stone-200 group-hover:border-blue-500/20 flex items-center justify-center transition-all shrink-0">
+                          {item.svgIcon}
+                        </div>
+                        <span className="font-semibold text-stone-700 text-xs group-hover:text-stone-900 transition-colors">{item.name}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-            {/* Backend & DB Column */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 ${activeTechTab === 'backend' ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}
-            >
-              <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">Backend & Database</h3>
-              </div>
-              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2">
-                {toolkitItems.filter(t => t.category === "backend").map((item) => (
-                  <motion.div
-                    key={item.name}
-                    whileHover={{ x: 3 }}
-                    className="p-2.5 rounded-xl bg-stone-50/60 border border-stone-200/80 hover:border-blue-500/30 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
-                  >
-                    <div className="w-7 h-7 rounded-md bg-white border border-stone-200 group-hover:border-blue-500/20 flex items-center justify-center transition-all shrink-0">
-                      {item.svgIcon}
-                    </div>
-                    <span className="font-semibold text-stone-700 text-xs group-hover:text-stone-900 transition-colors leading-tight">{item.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+              {activeTechTab === 'backend' && (
+                <motion.div 
+                  key="backend"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 w-full max-w-4xl mx-auto flex flex-col"
+                >
+                  <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">Backend & Database</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {toolkitItems.filter(t => t.category === "backend").map((item) => (
+                      <motion.div
+                        key={item.name}
+                        whileHover={{ x: 3 }}
+                        className="p-2.5 rounded-xl bg-stone-50/60 border border-stone-200/80 hover:border-blue-500/30 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-white border border-stone-200 group-hover:border-blue-500/20 flex items-center justify-center transition-all shrink-0">
+                          {item.svgIcon}
+                        </div>
+                        <span className="font-semibold text-stone-700 text-xs group-hover:text-stone-900 transition-colors leading-tight">{item.name}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-            {/* DevOps & Cloud Column */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 ${activeTechTab === 'devops' ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}
-            >
-              <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
-                <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">DevOps & Cloud</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {toolkitItems.filter(t => t.category === "devops").map((item) => (
-                  <motion.div
-                    key={item.name}
-                    whileHover={{ x: 3 }}
-                    className="p-2.5 rounded-xl bg-stone-50/60 border border-stone-200/80 hover:border-blue-500/30 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
-                  >
-                    <div className="w-7 h-7 rounded-md bg-white border border-stone-200 group-hover:border-blue-500/20 flex items-center justify-center transition-all shrink-0">
-                      {item.svgIcon}
-                    </div>
-                    <span className="font-semibold text-stone-700 text-xs group-hover:text-stone-900 transition-colors leading-tight">{item.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+              {activeTechTab === 'devops' && (
+                <motion.div 
+                  key="devops"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 w-full max-w-4xl mx-auto flex flex-col"
+                >
+                  <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">DevOps & Cloud</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    {toolkitItems.filter(t => t.category === "devops").map((item) => (
+                      <motion.div
+                        key={item.name}
+                        whileHover={{ x: 3 }}
+                        className="p-2.5 rounded-xl bg-stone-50/60 border border-stone-200/80 hover:border-blue-500/30 flex items-center gap-3 transition-all duration-200 group cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-white border border-stone-200 group-hover:border-blue-500/20 flex items-center justify-center transition-all shrink-0">
+                          {item.svgIcon}
+                        </div>
+                        <span className="font-semibold text-stone-700 text-xs group-hover:text-stone-900 transition-colors leading-tight">{item.name}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
@@ -1381,9 +1398,9 @@ export default function Home() {
       <section id="offer" className="py-12 md:py-20 bg-cosmic-black/25 relative overflow-hidden border-t border-stone-200/60">
         <div className="max-w-5xl mx-auto px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Project Estimator</span>
-            <h2 className="text-xl sm:text-2xl font-medium tracking-tight text-stone-900 mb-3 font-heading">Estimate your project <span className="font-serif italic font-light text-blue-600">investment.</span></h2>
-            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">Select the web features your business needs below to get an instant baseline estimate of your development path.</p>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Project Scope Planner</span>
+            <h2 className="text-xl sm:text-2xl font-medium tracking-tight text-stone-900 mb-3 font-heading">Plan your project <span className="font-serif italic font-light text-blue-600">timeline.</span></h2>
+            <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">Select the web architecture and integration modules your business needs below to map your delivery runway in real-time.</p>
           </div>
 
           {/* Mobile Step Progress Indicator */}
@@ -1409,9 +1426,9 @@ export default function Home() {
                 <span className="text-[10px] font-mono text-blue-600 uppercase tracking-wider block mb-2">01 / Choose Core Architecture</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
                   {[
-                    { id: "local", label: "Enterprise Brand Portal", price: "₹12,999", desc: "Corporate portals, clinical platforms, institutional networks, and directories." },
-                    { id: "ecom", label: "E-Commerce Suite", price: "₹25,999", desc: "Online storefronts, room booking systems, and carts." },
-                    { id: "custom", label: "SaaS & Operations Panel", price: "₹21,999", desc: "Real-time panels, logistics hubs, client dashboards, and custom cloud apps." }
+                    { id: "local", label: "Enterprise Brand Portal", runway: "2 Weeks (14 Days) base", desc: "Corporate portals, clinical platforms, institutional networks, and directories." },
+                    { id: "ecom", label: "E-Commerce Suite", runway: "4 Weeks (28 Days) base", desc: "Online storefronts, room booking systems, and carts." },
+                    { id: "custom", label: "SaaS & Operations Panel", runway: "3 Weeks (21 Days) base", desc: "Real-time panels, logistics hubs, client dashboards, and custom cloud apps." }
                   ].map((item) => (
                     <button
                       key={item.id} onClick={() => setEstType(item.id)}
@@ -1420,7 +1437,7 @@ export default function Home() {
                       <div>
                         <p className="font-semibold text-xs sm:text-sm mb-1">{item.label}</p>
                         <p className={`text-[11px] font-mono font-semibold mb-3 ${estType === item.id ? "text-blue-300" : "text-blue-600"}`}>
-                          Starts at {item.price}
+                          {item.runway}
                         </p>
                       </div>
                       <p className={`text-[10px] font-light leading-snug ${estType === item.id ? "text-stone-300" : "text-stone-500"}`}>{item.desc}</p>
@@ -1457,7 +1474,7 @@ export default function Home() {
                         <p className="text-[10px] sm:text-[11px] text-stone-500 font-light leading-relaxed">Automated lead routing, client verification emails, and customized contact form pipelines.</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-semibold text-blue-600 shrink-0 ml-2 mt-0.5">+₹1,000</span>
+                    <span className="text-xs font-mono font-semibold text-blue-600 shrink-0 ml-2 mt-0.5">+2 Days</span>
                   </button>
 
                   {/* WhatsApp Addon Toggle */}
@@ -1471,7 +1488,7 @@ export default function Home() {
                         <p className="text-[10px] sm:text-[11px] text-stone-500 font-light leading-relaxed">Instant chat link widgets, automated scheduling alerts, and direct contact points for mobile visitors.</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-semibold text-blue-600 shrink-0 ml-2 mt-0.5">+₹1,000</span>
+                    <span className="text-xs font-mono font-semibold text-blue-600 shrink-0 ml-2 mt-0.5">+1 Day</span>
                   </button>
 
                   {/* Payment Gateway Addon Toggle */}
@@ -1482,10 +1499,10 @@ export default function Home() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs sm:text-sm font-semibold text-stone-900">Secure Payment Gateway Integration</p>
-                        <p className="text-[10px] sm:text-[11px] text-stone-500 font-light leading-relaxed">Online payment collection setups supporting UPI, credit cards, and automated receipts.</p>
+                        <p className="text-[10px] sm:text-[11px] text-stone-500 font-light leading-relaxed">Online payment collection setups supporting global credit cards, local gateways, and receipts.</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono font-semibold text-blue-600 shrink-0 ml-2 mt-0.5">+₹5,000</span>
+                    <span className="text-xs font-mono font-semibold text-blue-600 shrink-0 ml-2 mt-0.5">+4 Days</span>
                   </button>
 
                 </div>
@@ -1515,28 +1532,28 @@ export default function Home() {
             <div className={`lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 sm:p-8 flex flex-col justify-between text-left h-full shadow-[inset_0_1px_1px_rgba(28,25,23,0.01)] hover:border-stone-300 transition-all duration-300 relative ${mobileStep === 3 ? "flex" : "hidden lg:flex"}`}>
               <div>
                 <span className="text-[10px] font-mono text-stone-500 uppercase tracking-wider block">Summary /</span>
-                <p className="text-sm font-semibold text-stone-700 mt-2 mb-6">Investment Breakdown</p>
+                <p className="text-sm font-semibold text-stone-700 mt-2 mb-6">Runway Breakdown</p>
                 <div className="space-y-3.5 mb-6 text-xs font-light border-b border-stone-100 pb-5">
                   <div className="flex justify-between items-center">
                     <span className="text-stone-600">Core Architecture</span>
-                    <span className="font-mono text-stone-800 font-medium">₹{basePrice.toLocaleString('en-IN')}</span>
+                    <span className="font-mono text-stone-800 font-medium">{formatRunwayText(baseRunway)}</span>
                   </div>
                   {addonEmail && (
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600">Email Module</span>
-                      <span className="font-mono text-blue-600 font-medium">+₹1,000</span>
+                      <span className="font-mono text-blue-600 font-medium">+2 Days</span>
                     </div>
                   )}
                   {addonWhatsapp && (
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600">WhatsApp Module</span>
-                      <span className="font-mono text-blue-600 font-medium">+₹1,000</span>
+                      <span className="font-mono text-blue-600 font-medium">+1 Day</span>
                     </div>
                   )}
                   {addonPayment && (
                     <div className="flex justify-between items-center">
                       <span className="text-stone-600">Payment Gateway</span>
-                      <span className="font-mono text-blue-600 font-medium">+₹5,000</span>
+                      <span className="font-mono text-blue-600 font-medium">+4 Days</span>
                     </div>
                   )}
                 </div>
@@ -1562,12 +1579,12 @@ export default function Home() {
 
               <div>
                 <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 mb-5 flex flex-col gap-1">
-                  <span className="text-[9px] uppercase tracking-wider text-blue-600 font-medium font-mono">Calculated Investment</span>
+                  <span className="text-[9px] uppercase tracking-wider text-blue-600 font-medium font-mono">Estimated Delivery Runway</span>
                   <div className="flex items-baseline justify-between mt-0.5">
-                    <p className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
-                      ₹{totalPrice.toLocaleString('en-IN')}
+                    <p className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight leading-tight">
+                      {formatRunwayText(totalRunwayDays)}
                     </p>
-                    <span className="text-[10px] text-stone-500 font-mono">INR</span>
+                    <span className="text-[10px] text-stone-500 font-mono">Estimated</span>
                   </div>
                 </div>
                 <Link href="/contact" className="w-full">
