@@ -124,14 +124,14 @@ export default function ContactClient() {
             {/* Compact, Beautiful Contact Info Rows */}
             <div className="flex flex-col divide-y divide-stone-200/80 w-full mt-4">
               {/* Email Item */}
-              <a href="mailto:hello.stackandscale@gmail.com" className="py-4 flex items-center justify-between group transition-all duration-200">
+              <a href="mailto:hello@stackandscale.in" className="py-4 flex items-center justify-between group transition-all duration-200">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-blue-500/5 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                   </div>
                   <div>
                     <p className="text-stone-500 text-[8px] font-bold uppercase tracking-wider mb-0.5">Email Team</p>
-                    <p className="text-stone-900 font-semibold text-xs sm:text-sm font-heading group-hover:text-blue-600 transition-colors">hello.stackandscale@gmail.com</p>
+                    <p className="text-stone-900 font-semibold text-xs sm:text-sm font-heading group-hover:text-blue-600 transition-colors">hello@stackandscale.in</p>
                   </div>
                 </div>
                 <span className="text-xs text-stone-400 group-hover:text-stone-900 transition-colors">&rarr;</span>
@@ -312,7 +312,7 @@ export default function ContactClient() {
           </div>
           <span className="font-normal text-stone-500 normal-case text-center">© {new Date().getFullYear()} Stack&Scale. Built to grow businesses online.</span>
           <div className="flex items-center gap-6 text-stone-500">
-            <a href="mailto:hello.stackandscale@gmail.com" className="hover:text-white transition-colors">Email</a>
+            <a href="mailto:hello@stackandscale.in" className="hover:text-white transition-colors">Email</a>
             <a href="https://wa.me/918421526195" className="hover:text-white transition-colors">WhatsApp</a>
             <a href="https://www.instagram.com/stack__and__scale" className="hover:text-white transition-colors">Instagram</a>
           </div>

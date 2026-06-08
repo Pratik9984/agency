@@ -303,7 +303,7 @@ export default function Home() {
     const sections = ["services", "portfolio", "about"];
     const handleScrollSpy = () => {
       const scrollPosition = window.scrollY + 220;
-      
+
       const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 120;
       if (isBottom) {
         setActiveSection("about");
@@ -550,15 +550,15 @@ export default function Home() {
     let currentIdx = 0;
     const regex = /(\*\*.*?\*\*|`.*?`)/g;
     let match;
-    
+
     while ((match = regex.exec(str)) !== null) {
       const matchStr = match[0];
       const matchIndex = match.index;
-      
+
       if (matchIndex > currentIdx) {
         parts.push(str.substring(currentIdx, matchIndex));
       }
-      
+
       if (matchStr.startsWith('**') && matchStr.endsWith('**')) {
         parts.push(
           <strong key={matchIndex} className="font-semibold text-stone-900">
@@ -572,14 +572,14 @@ export default function Home() {
           </code>
         );
       }
-      
+
       currentIdx = regex.lastIndex;
     }
-    
+
     if (currentIdx < str.length) {
       parts.push(str.substring(currentIdx));
     }
-    
+
     return parts.length > 0 ? parts : str;
   };
 
@@ -588,7 +588,7 @@ export default function Home() {
     return text.split('\n').map((line, idx) => {
       let trimmed = line.trim();
       if (!trimmed) return <div key={idx} className="h-1.5" />;
-      
+
       if (trimmed.startsWith('### ')) {
         const title = trimmed.replace('### ', '');
         return (
@@ -858,82 +858,82 @@ export default function Home() {
               </div>
             </div>
           </div>
- 
-            <div className="mt-12 border-t border-stone-200/60 w-full divide-y divide-stone-200/60">
-              {[
-                {
-                  id: "web-dev",
-                  title: "Web & IT Engineering",
-                  desc: "High-performance websites, custom web applications, and enterprise IT setups. We design secure database backends, custom APIs, cloud infrastructures, and integrations built for speed.",
-                  features: ["Custom Web Apps", "Cloud Systems", "Tailored DBs"],
-                  tag: "Full-Stack & IT Solutions",
-                  subtitle: "Custom web architectures and IT integrations built for speed.",
-                  challenge: "Bloated template builders and generic IT integrations lock businesses into legacy code, slow response times, and security vulnerabilities.",
-                  solution: "We engineer custom website architectures, APIs, and cloud services from scratch, ensuring zero template bloat, complete control, and repository ownership.",
-                  lighthouse: { perf: 100, access: 98, best: 100, seo: 100 },
-                  deliverables: ["Custom websites & portals", "API & database integrations", "Cloud delivery & security setups", "Complete system ownership"]
-                },
-                {
-                  id: "ecom",
-                  title: "E-Commerce & Transaction Systems",
-                  desc: "Secure, high-throughput digital commerce architectures and transaction funnels. Integrated with payment gateways and enterprise inventory, scheduling, and invoicing pipelines.",
-                  features: ["Frictionless checkout", "Stripe API Integration", "Speed product catalogs"],
-                  tag: "E-Commerce",
-                  subtitle: "Optimized checkouts, payment links, and booking flows.",
-                  challenge: "Standard template store checkouts suffer from rigid steps, slow render bottlenecks, and poor API integrations, causing high conversion drops.",
-                  solution: "We integrate custom Stripe, Razorpay, or custom checkout gateways into high-performance product listings, closing conversions instantly.",
-                  lighthouse: { perf: 98, access: 100, best: 98, seo: 100 },
-                  deliverables: ["Razorpay/Stripe API pipelines", "Real-time stock reservation", "Instant invoice/receipt dispatch", "Cart drop-off recovery hooks"]
-                },
-                {
-                  id: "seo",
-                  title: "SEO & Performance Engineering",
-                  desc: "Technical search optimization and clean page speed engineering to guarantee maximum visibility. We embed structured JSON-LD schemas directly into semantic HTML structures.",
-                  features: ["JSON-LD local schema", "Sub-second load times", "Optimized lead forms"],
-                  tag: "Online Growth",
-                  subtitle: "Valid structured data schemas and Google Core Web Vitals audit compliance.",
-                  challenge: "Generic plugins only generate basic metadata, leaving underlying layout delays (LCP/CLS) and search index blocks unresolved.",
-                  solution: "We implement valid local business schemas, clean semantic structure, and optimized asset routing to accelerate indexing and visibility.",
-                  lighthouse: { perf: 100, access: 100, best: 100, seo: 100 },
-                  deliverables: ["JSON-LD local business profile schemas", "Sub-second LCP benchmark speeds", "Semantic HTML5 structural outlines", "Optimized lead capture funnels"]
-                }
-              ].map((item, idx) => (
-                <motion.div
-                  key={item.title}
-                  custom={idx}
-                  variants={rowVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: "-60px" }}
-                  whileHover="hover"
-                  onClick={() => setActiveServiceDetail(item)}
-                  className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group cursor-pointer border border-transparent hover:border-stone-200/50 hover:bg-white hover:shadow-[0_12px_30px_rgba(0,0,0,0.03)] px-6 -mx-6 rounded-[20px] transition-all duration-300"
-                >
-                  <div className="max-w-2xl text-left">
-                    <span className="text-blue-600 font-mono text-[9px] uppercase tracking-wider font-semibold block mb-2">{item.tag}</span>
-                    <h3 className="text-xl font-medium text-stone-900 mb-2 font-heading tracking-tight group-hover:text-blue-600 transition-colors">{item.title}</h3>
-                    <p className="text-stone-600 leading-relaxed text-sm font-light">{item.desc}</p>
+
+          <div className="mt-12 border-t border-stone-200/60 w-full divide-y divide-stone-200/60">
+            {[
+              {
+                id: "web-dev",
+                title: "Web & IT Engineering",
+                desc: "High-performance websites, custom web applications, and enterprise IT setups. We design secure database backends, custom APIs, cloud infrastructures, and integrations built for speed.",
+                features: ["Custom Web Apps", "Cloud Systems", "Tailored DBs"],
+                tag: "Full-Stack & IT Solutions",
+                subtitle: "Custom web architectures and IT integrations built for speed.",
+                challenge: "Bloated template builders and generic IT integrations lock businesses into legacy code, slow response times, and security vulnerabilities.",
+                solution: "We engineer custom website architectures, APIs, and cloud services from scratch, ensuring zero template bloat, complete control, and repository ownership.",
+                lighthouse: { perf: 100, access: 98, best: 100, seo: 100 },
+                deliverables: ["Custom websites & portals", "API & database integrations", "Cloud delivery & security setups", "Complete system ownership"]
+              },
+              {
+                id: "ecom",
+                title: "E-Commerce & Transaction Systems",
+                desc: "Secure, high-throughput digital commerce architectures and transaction funnels. Integrated with payment gateways and enterprise inventory, scheduling, and invoicing pipelines.",
+                features: ["Frictionless checkout", "Stripe API Integration", "Speed product catalogs"],
+                tag: "E-Commerce",
+                subtitle: "Optimized checkouts, payment links, and booking flows.",
+                challenge: "Standard template store checkouts suffer from rigid steps, slow render bottlenecks, and poor API integrations, causing high conversion drops.",
+                solution: "We integrate custom Stripe, Razorpay, or custom checkout gateways into high-performance product listings, closing conversions instantly.",
+                lighthouse: { perf: 98, access: 100, best: 98, seo: 100 },
+                deliverables: ["Razorpay/Stripe API pipelines", "Real-time stock reservation", "Instant invoice/receipt dispatch", "Cart drop-off recovery hooks"]
+              },
+              {
+                id: "seo",
+                title: "SEO & Performance Engineering",
+                desc: "Technical search optimization and clean page speed engineering to guarantee maximum visibility. We embed structured JSON-LD schemas directly into semantic HTML structures.",
+                features: ["JSON-LD local schema", "Sub-second load times", "Optimized lead forms"],
+                tag: "Online Growth",
+                subtitle: "Valid structured data schemas and Google Core Web Vitals audit compliance.",
+                challenge: "Generic plugins only generate basic metadata, leaving underlying layout delays (LCP/CLS) and search index blocks unresolved.",
+                solution: "We implement valid local business schemas, clean semantic structure, and optimized asset routing to accelerate indexing and visibility.",
+                lighthouse: { perf: 100, access: 100, best: 100, seo: 100 },
+                deliverables: ["JSON-LD local business profile schemas", "Sub-second LCP benchmark speeds", "Semantic HTML5 structural outlines", "Optimized lead capture funnels"]
+              }
+            ].map((item, idx) => (
+              <motion.div
+                key={item.title}
+                custom={idx}
+                variants={rowVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-60px" }}
+                whileHover="hover"
+                onClick={() => setActiveServiceDetail(item)}
+                className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group cursor-pointer border border-transparent hover:border-stone-200/50 hover:bg-white hover:shadow-[0_12px_30px_rgba(0,0,0,0.03)] px-6 -mx-6 rounded-[20px] transition-all duration-300"
+              >
+                <div className="max-w-2xl text-left">
+                  <span className="text-blue-600 font-mono text-[9px] uppercase tracking-wider font-semibold block mb-2">{item.tag}</span>
+                  <h3 className="text-xl font-medium text-stone-900 mb-2 font-heading tracking-tight group-hover:text-blue-600 transition-colors">{item.title}</h3>
+                  <p className="text-stone-600 leading-relaxed text-sm font-light">{item.desc}</p>
+                </div>
+                <div className="flex items-center gap-6 self-stretch md:self-auto justify-between md:justify-end border-t md:border-t-0 border-stone-100 pt-4 md:pt-0 shrink-0">
+                  <div className="flex flex-wrap gap-1.5 text-[9px] font-mono text-stone-600">
+                    {item.features.map((feat) => (
+                      <span key={feat} className="px-2.5 py-1 rounded bg-stone-50 border border-stone-200/60 text-stone-700">{feat}</span>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-6 self-stretch md:self-auto justify-between md:justify-end border-t md:border-t-0 border-stone-100 pt-4 md:pt-0 shrink-0">
-                    <div className="flex flex-wrap gap-1.5 text-[9px] font-mono text-stone-600">
-                      {item.features.map((feat) => (
-                        <span key={feat} className="px-2.5 py-1 rounded bg-stone-50 border border-stone-200/60 text-stone-700">{feat}</span>
-                      ))}
-                    </div>
-                    <motion.div 
-                      variants={{
-                        rest: { x: 0, scale: 1, backgroundColor: "rgba(37, 99, 235, 0.05)", borderColor: "rgba(37, 99, 235, 0.15)", color: "#2563eb" },
-                        hover: { x: 6, scale: 1.05, backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
-                      }}
-                      initial="rest"
-                      className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300"
-                    >
-                      <svg className="w-4 h-4 stroke-current stroke-2" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  <motion.div
+                    variants={{
+                      rest: { x: 0, scale: 1, backgroundColor: "rgba(37, 99, 235, 0.05)", borderColor: "rgba(37, 99, 235, 0.15)", color: "#2563eb" },
+                      hover: { x: 6, scale: 1.05, backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
+                    }}
+                    initial="rest"
+                    className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300"
+                  >
+                    <svg className="w-4 h-4 stroke-current stroke-2" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </motion.div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -946,7 +946,7 @@ export default function Home() {
             <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">Explore bespoke websites and digital platforms built to help brands expand their presence and increase their revenues online.</p>
           </div>
 
-          <motion.div 
+          <motion.div
             ref={portfolioContainerRef}
             className="mt-12 border-t border-stone-200/60 w-full divide-y divide-stone-200/60"
             layout
@@ -976,10 +976,10 @@ export default function Home() {
                         <svg className="w-3.5 h-3.5 stroke-blue-600 stroke-2" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                       </Link>
                       {project.liveUrl && (
-                        <a 
-                          href={project.liveUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="text-xs font-semibold text-[#10B981] hover:text-[#059669] inline-flex items-center gap-1.5 cursor-pointer transition-colors"
                         >
                           View Live Site
@@ -1046,7 +1046,7 @@ export default function Home() {
                 { num: "04", step: "SEO Audit & Launch", desc: "Validating Core Web Vitals to achieve near-perfect performance scores, testing schemas, and deploying to production." }
               ].map((p, idx) => (
                 <motion.div
-                  key={p.num} 
+                  key={p.num}
                   className="pb-8 last:pb-0 flex flex-col gap-2 text-left relative transition-all duration-300 group cursor-pointer"
                   initial="hidden"
                   whileInView="visible"
@@ -1057,7 +1057,7 @@ export default function Home() {
                     visible: { opacity: 1, x: 0, transition: { duration: 0.5, delay: idx * 0.1 } }
                   }}
                 >
-                  <motion.div 
+                  <motion.div
                     variants={{
                       rest: { scale: 1, borderColor: "rgba(200, 90, 56, 0.25)", backgroundColor: "#ffffff" },
                       hover: { scale: 1.2, borderColor: "#C85A38", backgroundColor: "#C85A38" }
@@ -1065,12 +1065,12 @@ export default function Home() {
                     initial="rest"
                     className="absolute -left-[35px] sm:-left-[43px] top-1 w-5 h-5 rounded-full border-2 flex items-center justify-center z-10 shadow-sm transition-all duration-300"
                   >
-                    <motion.span 
+                    <motion.span
                       variants={{
                         rest: { backgroundColor: "#C85A38", scale: 1 },
                         hover: { backgroundColor: "#ffffff", scale: 0.8 }
                       }}
-                      className="w-1.5 h-1.5 rounded-full" 
+                      className="w-1.5 h-1.5 rounded-full"
                     />
                   </motion.div>
                   <div className="flex items-center justify-between">
@@ -1105,7 +1105,7 @@ export default function Home() {
               <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-4 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Optimization Diagnostics</span>
               <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">Analyze your current <span className="font-serif italic font-light text-blue-600">website speed.</span></h2>
               <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a genuine inline scan of your system's Core Web Vitals directly inside this page powered by our high-speed proprietary AI diagnostics.</p>
-              
+
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="bottom-left" alt="Diagnostics Magnifier Illustration" />
               </div>
@@ -1129,296 +1129,296 @@ export default function Home() {
                   We connect directly to our proprietary diagnostic clusters—speed metrics are calculated and analyzed inline below, without opening external tabs.
                 </p>
 
-            <AnimatePresence mode="wait">
-              {auditStatus === 'idle' && (
-                <motion.div key="idle" className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <p className="text-stone-500 text-xs font-light tracking-wide">Awaiting target system parameters validation above. This will perform an inline speed and structure diagnostics scan.</p>
-                </motion.div>
-              )}
+                <AnimatePresence mode="wait">
+                  {auditStatus === 'idle' && (
+                    <motion.div key="idle" className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <p className="text-stone-500 text-xs font-light tracking-wide">Awaiting target system parameters validation above. This will perform an inline speed and structure diagnostics scan.</p>
+                    </motion.div>
+                  )}
 
-              {auditStatus === 'scanning' && (
-                <motion.div key="scanning" className="flex flex-col rounded-xl border border-stone-200 bg-stone-50 overflow-hidden shadow-2xl relative" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {/* macOS Terminal Titlebar */}
-                  <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 bg-stone-100">
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-red-500/40" />
-                      <span className="w-3 h-3 rounded-full bg-yellow-500/40" />
-                      <span className="w-3 h-3 rounded-full bg-green-500/40" />
-                      <span className="text-[10px] font-mono text-stone-500 ml-2">diagnostic-terminal.sh</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
-                      <span className="text-[9px] font-mono text-blue-600 uppercase font-semibold">Running Scan</span>
-                    </div>
-                  </div>
-                  {/* Terminal Shell Logs */}
-                  <div className="p-5 h-56 overflow-y-auto font-mono text-[11px] text-stone-700 leading-relaxed text-left flex flex-col gap-2.5 custom-scrollbar bg-stone-50/50 break-words">
-                    {scanLogs.map((log, idx) => (
-                      <motion.div key={idx} className={log.includes('[WARN]') ? "text-amber-600 font-medium" : log.includes('[SUCCESS]') ? "text-emerald-700 font-semibold" : "text-stone-550"} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.1 }}>
-                        <span className="text-stone-400 mr-2">&gt;</span>{log}
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {auditStatus === 'complete' && (
-                <motion.div key="complete" className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {/* Your Real Score Card */}
-                    <div className="p-6 rounded-2xl bg-red-500/[0.01] border border-red-200/60 flex flex-col gap-6 text-left relative overflow-hidden shadow-inner">
-                      <span className="absolute top-4 right-4 text-[9px] font-mono font-bold tracking-wider uppercase py-0.5 px-2.5 rounded bg-red-50 border border-red-200 text-red-700">Your Real Score</span>
-                      <div>
-                        <h4 className="font-semibold text-xs uppercase tracking-wider text-red-700 mb-1">Live Inspected Layout Delay</h4>
-                        <p className="text-[10px] text-stone-550 font-light">Genuine metrics parsed from your live stylesheet configurations and document assets.</p>
-                      </div>
-
-                      {/* Circular Gauge Grid */}
-                      <div className="grid grid-cols-4 gap-2 pt-2">
-                        {[
-                          { score: realScores.perf, title: "Speed" },
-                          { score: realScores.access, title: "UI/UX" },
-                          { score: realScores.best, title: "Trust" },
-                          { score: realScores.seo, title: "SEO" }
-                        ].map((m, idx) => {
-                          const col = getScoreColorClass(m.score);
-                          return (
-                            <div key={idx} className="flex flex-col items-center gap-2">
-                              <div className="relative w-11 h-11 min-[380px]:w-14 min-[380px]:h-14 flex items-center justify-center">
-                                <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
-                                  <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3]" />
-                                  <motion.circle 
-                                    cx="36" cy="36" r="28" 
-                                    className={`fill-none ${col.stroke} stroke-[3.5]`} 
-                                    strokeDasharray="175.9" 
-                                    initial={{ strokeDashoffset: 175.9 }}
-                                    animate={{ strokeDashoffset: 175.9 - (175.9 * m.score) / 100 }}
-                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
-                                    strokeLinecap="round" 
-                                  />
-                                </svg>
-                                <span className={`absolute font-mono text-xs font-bold ${col.text}`}>{m.score}</span>
-                              </div>
-                              <span className="text-[9px] uppercase tracking-wider font-mono font-semibold text-stone-500">{m.title}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Stack&Scale Target Card */}
-                    <div className="p-6 rounded-2xl bg-blue-500/[0.01] border border-blue-200/60 flex flex-col gap-6 text-left relative overflow-hidden shadow-inner">
-                      <span className="absolute top-4 right-4 text-[9px] font-mono font-bold tracking-wider uppercase py-0.5 px-2.5 rounded bg-blue-50 border border-blue-200 text-blue-700">Stack&Scale Target</span>
-                      <div>
-                        <h4 className="font-semibold text-xs uppercase tracking-wider text-blue-700 mb-1">Optimized Execution Structure</h4>
-                        <p className="text-[10px] text-stone-550 font-light">Edge route data compiling handles layout loads. Clean static delivery protects execution.</p>
-                      </div>
-
-                      {/* Circular Gauge Grid */}
-                      <div className="grid grid-cols-4 gap-2 pt-2">
-                        {[
-                          { score: optimizedScores.perf, title: "Speed" },
-                          { score: optimizedScores.access, title: "UI/UX" },
-                          { score: optimizedScores.best, title: "Trust" },
-                          { score: optimizedScores.seo, title: "SEO" }
-                        ].map((m, idx) => {
-                          const col = getScoreColorClass(m.score);
-                          return (
-                            <div key={idx} className="flex flex-col items-center gap-2">
-                              <div className="relative w-11 h-11 min-[380px]:w-14 min-[380px]:h-14 flex items-center justify-center">
-                                <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
-                                  <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3]" />
-                                  <motion.circle 
-                                    cx="36" cy="36" r="28" 
-                                    className={`fill-none stroke-emerald-600 stroke-[3.5]`} 
-                                    strokeDasharray="175.9" 
-                                    initial={{ strokeDashoffset: 175.9 }}
-                                    animate={{ strokeDashoffset: 175.9 - (175.9 * m.score) / 100 }}
-                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
-                                    strokeLinecap="round" 
-                                  />
-                                </svg>
-                                <span className={`absolute font-mono text-xs font-bold text-emerald-600`}>{m.score}</span>
-                              </div>
-                              <span className="text-[9px] uppercase tracking-wider font-mono font-semibold text-stone-500">{m.title}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Core Web Vitals Breakdown Dashboard */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15, duration: 0.5 }}
-                    className="p-6 rounded-2xl bg-stone-50/45 border border-stone-200/85 text-left mt-6 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)]"
-                  >
-                    <div className="flex items-center gap-2 border-b border-stone-150 pb-3.5 mb-5">
-                      <svg className="w-4 h-4 text-stone-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                      <h4 className="font-semibold text-xs uppercase tracking-wider text-stone-850">Core Web Vitals & Loading Timings</h4>
-                    </div>
-
-                    <div className="space-y-5">
-                      {[
-                        { 
-                          label: "First Contentful Paint (FCP)", 
-                          realVal: realMetrics.fcp, 
-                          targetVal: "0.4s", 
-                          numericReal: parseFloat(realMetrics.fcp) || 1.8, 
-                          maxVal: 4.0, 
-                          goodThreshold: 1.8, 
-                          desc: "Marks the time at which the first text or image is rendered." 
-                        },
-                        { 
-                          label: "Largest Contentful Paint (LCP)", 
-                          realVal: realMetrics.lcp, 
-                          targetVal: "0.8s", 
-                          numericReal: parseFloat(realMetrics.lcp) || 3.2, 
-                          maxVal: 5.0, 
-                          goodThreshold: 2.5, 
-                          desc: "Marks the time at which the main content of the page is likely loaded." 
-                        },
-                        { 
-                          label: "Total Blocking Time (TBT)", 
-                          realVal: realMetrics.tbt, 
-                          targetVal: "40ms", 
-                          numericReal: parseFloat(realMetrics.tbt) || 260, 
-                          maxVal: 800, 
-                          goodThreshold: 200, 
-                          desc: "Sum of all time periods between FCP and Time to Interactive." 
-                        },
-                        { 
-                          label: "Cumulative Layout Shift (CLS)", 
-                          realVal: realMetrics.cls, 
-                          targetVal: "0.01", 
-                          numericReal: parseFloat(realMetrics.cls) || 0.08, 
-                          maxVal: 0.5, 
-                          goodThreshold: 0.1, 
-                          desc: "Measures the visual stability of the page layout." 
-                        },
-                        { 
-                          label: "Speed Index (SI)", 
-                          realVal: realMetrics.si, 
-                          targetVal: "0.6s", 
-                          numericReal: parseFloat(realMetrics.si) || 2.9, 
-                          maxVal: 6.0, 
-                          goodThreshold: 3.4, 
-                          desc: "Shows how quickly the contents of a page are visibly populated." 
-                        }
-                      ].map((item, idx) => {
-                        const realPercent = Math.min(100, Math.max(8, (item.numericReal / item.maxVal) * 100));
-                        
-                        let barColor = "bg-emerald-500";
-                        let textColor = "text-emerald-650 font-bold";
-                        let statusText = "Optimal";
-                        let statusIcon = "✓";
-                        let statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
-                        
-                        if (item.numericReal > item.goodThreshold) {
-                          const isPoor = item.numericReal > (item.goodThreshold * 1.5);
-                          barColor = isPoor ? "bg-red-500" : "bg-amber-500";
-                          textColor = isPoor ? "text-red-500 font-bold" : "text-amber-500 font-semibold";
-                          statusText = isPoor ? "Poor" : "Needs Work";
-                          statusIcon = isPoor ? "▲" : "⚠";
-                          statusClass = isPoor 
-                            ? "bg-red-50 text-red-700 border-red-200/60" 
-                            : "bg-amber-50 text-amber-600 border-amber-200/60";
-                        }
-
-                        return (
-                          <div key={idx} className="flex flex-col gap-1.5 border-b border-stone-150/60 last:border-0 pb-4 last:pb-0">
-                            <div className="flex items-start justify-between">
-                              <div className="pr-4">
-                                <span className="font-semibold text-[11px] sm:text-xs text-stone-850">{item.label}</span>
-                                <p className="text-[10px] text-stone-500 font-light leading-normal">{item.desc}</p>
-                              </div>
-                              <div className="text-right shrink-0 flex flex-col items-end gap-1">
-                                <div className="flex items-center gap-1.5">
-                                  <span className={`px-1.5 py-0.5 rounded-[5px] border text-[8px] font-mono font-bold uppercase tracking-wider flex items-center gap-0.5 ${statusClass}`}>
-                                    <span>{statusIcon}</span>
-                                    <span>{statusText}</span>
-                                  </span>
-                                  <span className={`font-mono text-xs ${textColor}`}>{item.realVal}</span>
-                                </div>
-                                <span className="text-[9px] text-stone-400 font-mono block">Target: {item.targetVal}</span>
-                              </div>
-                            </div>
-
-                            {/* Dual Graph Bars */}
-                            <div className="space-y-2 mt-1">
-                              {/* Real Score Bar */}
-                              <div>
-                                <div className="flex justify-between items-center text-[9px] text-stone-400 font-mono mb-0.5">
-                                  <span>Current Site Delay</span>
-                                </div>
-                                <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden border border-stone-200/40">
-                                  <motion.div 
-                                    className={`h-full ${barColor} rounded-full`}
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${realPercent}%` }}
-                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.05 }}
-                                  />
-                                </div>
-                              </div>
-
-                              {/* Stack&Scale Optimized Bar */}
-                              <div>
-                                <div className="flex justify-between items-center text-[9px] text-blue-600 font-mono mb-0.5 font-medium">
-                                  <span>Stack&Scale Optimized Target</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-blue-50/50 rounded-full overflow-hidden border border-blue-100/30">
-                                  <motion.div 
-                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${Math.min(100, Math.max(6, (parseFloat(item.targetVal) / item.maxVal) * 100))}%` }}
-                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.05 }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-
-                  {/* AI Diagnostics Container */}
-                  {aiAnalysis && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                      className="p-6 rounded-2xl bg-stone-50/45 border border-stone-200/80 text-left mt-6 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)]"
-                    >
-                      <div className="flex items-center justify-between border-b border-stone-200/85 pb-3.5 mb-4">
+                  {auditStatus === 'scanning' && (
+                    <motion.div key="scanning" className="flex flex-col rounded-xl border border-stone-200 bg-stone-50 overflow-hidden shadow-2xl relative" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      {/* macOS Terminal Titlebar */}
+                      <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 bg-stone-100">
                         <div className="flex items-center gap-2">
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                          </span>
-                          <h4 className="font-semibold text-xs uppercase tracking-wider text-stone-850">Real-Time AI Diagnostics</h4>
+                          <span className="w-3 h-3 rounded-full bg-red-500/40" />
+                          <span className="w-3 h-3 rounded-full bg-yellow-500/40" />
+                          <span className="w-3 h-3 rounded-full bg-green-500/40" />
+                          <span className="text-[10px] font-mono text-stone-500 ml-2">diagnostic-terminal.sh</span>
                         </div>
-                        <span className="text-[9px] font-mono font-medium text-stone-400 bg-stone-100 px-2.5 py-0.5 rounded border border-stone-200/60 uppercase">
-                          AI-Core v1.4
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
+                          <span className="text-[9px] font-mono text-blue-600 uppercase font-semibold">Running Scan</span>
+                        </div>
                       </div>
-                      <div className="space-y-1.5">
-                        {renderMarkdown(aiAnalysis)}
+                      {/* Terminal Shell Logs */}
+                      <div className="p-5 h-56 overflow-y-auto font-mono text-[11px] text-stone-700 leading-relaxed text-left flex flex-col gap-2.5 custom-scrollbar bg-stone-50/50 break-words">
+                        {scanLogs.map((log, idx) => (
+                          <motion.div key={idx} className={log.includes('[WARN]') ? "text-amber-600 font-medium" : log.includes('[SUCCESS]') ? "text-emerald-700 font-semibold" : "text-stone-550"} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.1 }}>
+                            <span className="text-stone-400 mr-2">&gt;</span>{log}
+                          </motion.div>
+                        ))}
                       </div>
                     </motion.div>
                   )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+
+                  {auditStatus === 'complete' && (
+                    <motion.div key="complete" className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* Your Real Score Card */}
+                        <div className="p-6 rounded-2xl bg-red-500/[0.01] border border-red-200/60 flex flex-col gap-6 text-left relative overflow-hidden shadow-inner">
+                          <span className="absolute top-4 right-4 text-[9px] font-mono font-bold tracking-wider uppercase py-0.5 px-2.5 rounded bg-red-50 border border-red-200 text-red-700">Your Real Score</span>
+                          <div>
+                            <h4 className="font-semibold text-xs uppercase tracking-wider text-red-700 mb-1">Live Inspected Layout Delay</h4>
+                            <p className="text-[10px] text-stone-550 font-light">Genuine metrics parsed from your live stylesheet configurations and document assets.</p>
+                          </div>
+
+                          {/* Circular Gauge Grid */}
+                          <div className="grid grid-cols-4 gap-2 pt-2">
+                            {[
+                              { score: realScores.perf, title: "Speed" },
+                              { score: realScores.access, title: "UI/UX" },
+                              { score: realScores.best, title: "Trust" },
+                              { score: realScores.seo, title: "SEO" }
+                            ].map((m, idx) => {
+                              const col = getScoreColorClass(m.score);
+                              return (
+                                <div key={idx} className="flex flex-col items-center gap-2">
+                                  <div className="relative w-11 h-11 min-[380px]:w-14 min-[380px]:h-14 flex items-center justify-center">
+                                    <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
+                                      <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3]" />
+                                      <motion.circle
+                                        cx="36" cy="36" r="28"
+                                        className={`fill-none ${col.stroke} stroke-[3.5]`}
+                                        strokeDasharray="175.9"
+                                        initial={{ strokeDashoffset: 175.9 }}
+                                        animate={{ strokeDashoffset: 175.9 - (175.9 * m.score) / 100 }}
+                                        transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
+                                        strokeLinecap="round"
+                                      />
+                                    </svg>
+                                    <span className={`absolute font-mono text-xs font-bold ${col.text}`}>{m.score}</span>
+                                  </div>
+                                  <span className="text-[9px] uppercase tracking-wider font-mono font-semibold text-stone-500">{m.title}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Stack&Scale Target Card */}
+                        <div className="p-6 rounded-2xl bg-blue-500/[0.01] border border-blue-200/60 flex flex-col gap-6 text-left relative overflow-hidden shadow-inner">
+                          <span className="absolute top-4 right-4 text-[9px] font-mono font-bold tracking-wider uppercase py-0.5 px-2.5 rounded bg-blue-50 border border-blue-200 text-blue-700">Stack&Scale Target</span>
+                          <div>
+                            <h4 className="font-semibold text-xs uppercase tracking-wider text-blue-700 mb-1">Optimized Execution Structure</h4>
+                            <p className="text-[10px] text-stone-550 font-light">Edge route data compiling handles layout loads. Clean static delivery protects execution.</p>
+                          </div>
+
+                          {/* Circular Gauge Grid */}
+                          <div className="grid grid-cols-4 gap-2 pt-2">
+                            {[
+                              { score: optimizedScores.perf, title: "Speed" },
+                              { score: optimizedScores.access, title: "UI/UX" },
+                              { score: optimizedScores.best, title: "Trust" },
+                              { score: optimizedScores.seo, title: "SEO" }
+                            ].map((m, idx) => {
+                              const col = getScoreColorClass(m.score);
+                              return (
+                                <div key={idx} className="flex flex-col items-center gap-2">
+                                  <div className="relative w-11 h-11 min-[380px]:w-14 min-[380px]:h-14 flex items-center justify-center">
+                                    <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
+                                      <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3]" />
+                                      <motion.circle
+                                        cx="36" cy="36" r="28"
+                                        className={`fill-none stroke-emerald-600 stroke-[3.5]`}
+                                        strokeDasharray="175.9"
+                                        initial={{ strokeDashoffset: 175.9 }}
+                                        animate={{ strokeDashoffset: 175.9 - (175.9 * m.score) / 100 }}
+                                        transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
+                                        strokeLinecap="round"
+                                      />
+                                    </svg>
+                                    <span className={`absolute font-mono text-xs font-bold text-emerald-600`}>{m.score}</span>
+                                  </div>
+                                  <span className="text-[9px] uppercase tracking-wider font-mono font-semibold text-stone-500">{m.title}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Core Web Vitals Breakdown Dashboard */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15, duration: 0.5 }}
+                        className="p-6 rounded-2xl bg-stone-50/45 border border-stone-200/85 text-left mt-6 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)]"
+                      >
+                        <div className="flex items-center gap-2 border-b border-stone-150 pb-3.5 mb-5">
+                          <svg className="w-4 h-4 text-stone-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          <h4 className="font-semibold text-xs uppercase tracking-wider text-stone-850">Core Web Vitals & Loading Timings</h4>
+                        </div>
+
+                        <div className="space-y-5">
+                          {[
+                            {
+                              label: "First Contentful Paint (FCP)",
+                              realVal: realMetrics.fcp,
+                              targetVal: "0.4s",
+                              numericReal: parseFloat(realMetrics.fcp) || 1.8,
+                              maxVal: 4.0,
+                              goodThreshold: 1.8,
+                              desc: "Marks the time at which the first text or image is rendered."
+                            },
+                            {
+                              label: "Largest Contentful Paint (LCP)",
+                              realVal: realMetrics.lcp,
+                              targetVal: "0.8s",
+                              numericReal: parseFloat(realMetrics.lcp) || 3.2,
+                              maxVal: 5.0,
+                              goodThreshold: 2.5,
+                              desc: "Marks the time at which the main content of the page is likely loaded."
+                            },
+                            {
+                              label: "Total Blocking Time (TBT)",
+                              realVal: realMetrics.tbt,
+                              targetVal: "40ms",
+                              numericReal: parseFloat(realMetrics.tbt) || 260,
+                              maxVal: 800,
+                              goodThreshold: 200,
+                              desc: "Sum of all time periods between FCP and Time to Interactive."
+                            },
+                            {
+                              label: "Cumulative Layout Shift (CLS)",
+                              realVal: realMetrics.cls,
+                              targetVal: "0.01",
+                              numericReal: parseFloat(realMetrics.cls) || 0.08,
+                              maxVal: 0.5,
+                              goodThreshold: 0.1,
+                              desc: "Measures the visual stability of the page layout."
+                            },
+                            {
+                              label: "Speed Index (SI)",
+                              realVal: realMetrics.si,
+                              targetVal: "0.6s",
+                              numericReal: parseFloat(realMetrics.si) || 2.9,
+                              maxVal: 6.0,
+                              goodThreshold: 3.4,
+                              desc: "Shows how quickly the contents of a page are visibly populated."
+                            }
+                          ].map((item, idx) => {
+                            const realPercent = Math.min(100, Math.max(8, (item.numericReal / item.maxVal) * 100));
+
+                            let barColor = "bg-emerald-500";
+                            let textColor = "text-emerald-650 font-bold";
+                            let statusText = "Optimal";
+                            let statusIcon = "✓";
+                            let statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
+
+                            if (item.numericReal > item.goodThreshold) {
+                              const isPoor = item.numericReal > (item.goodThreshold * 1.5);
+                              barColor = isPoor ? "bg-red-500" : "bg-amber-500";
+                              textColor = isPoor ? "text-red-500 font-bold" : "text-amber-500 font-semibold";
+                              statusText = isPoor ? "Poor" : "Needs Work";
+                              statusIcon = isPoor ? "▲" : "⚠";
+                              statusClass = isPoor
+                                ? "bg-red-50 text-red-700 border-red-200/60"
+                                : "bg-amber-50 text-amber-600 border-amber-200/60";
+                            }
+
+                            return (
+                              <div key={idx} className="flex flex-col gap-1.5 border-b border-stone-150/60 last:border-0 pb-4 last:pb-0">
+                                <div className="flex items-start justify-between">
+                                  <div className="pr-4">
+                                    <span className="font-semibold text-[11px] sm:text-xs text-stone-850">{item.label}</span>
+                                    <p className="text-[10px] text-stone-500 font-light leading-normal">{item.desc}</p>
+                                  </div>
+                                  <div className="text-right shrink-0 flex flex-col items-end gap-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className={`px-1.5 py-0.5 rounded-[5px] border text-[8px] font-mono font-bold uppercase tracking-wider flex items-center gap-0.5 ${statusClass}`}>
+                                        <span>{statusIcon}</span>
+                                        <span>{statusText}</span>
+                                      </span>
+                                      <span className={`font-mono text-xs ${textColor}`}>{item.realVal}</span>
+                                    </div>
+                                    <span className="text-[9px] text-stone-400 font-mono block">Target: {item.targetVal}</span>
+                                  </div>
+                                </div>
+
+                                {/* Dual Graph Bars */}
+                                <div className="space-y-2 mt-1">
+                                  {/* Real Score Bar */}
+                                  <div>
+                                    <div className="flex justify-between items-center text-[9px] text-stone-400 font-mono mb-0.5">
+                                      <span>Current Site Delay</span>
+                                    </div>
+                                    <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden border border-stone-200/40">
+                                      <motion.div
+                                        className={`h-full ${barColor} rounded-full`}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${realPercent}%` }}
+                                        transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.05 }}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* Stack&Scale Optimized Bar */}
+                                  <div>
+                                    <div className="flex justify-between items-center text-[9px] text-blue-600 font-mono mb-0.5 font-medium">
+                                      <span>Stack&Scale Optimized Target</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-blue-50/50 rounded-full overflow-hidden border border-blue-100/30">
+                                      <motion.div
+                                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, Math.max(6, (parseFloat(item.targetVal) / item.maxVal) * 100))}%` }}
+                                        transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.05 }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+
+                      {/* AI Diagnostics Container */}
+                      {aiAnalysis && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3, duration: 0.5 }}
+                          className="p-6 rounded-2xl bg-stone-50/45 border border-stone-200/80 text-left mt-6 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)]"
+                        >
+                          <div className="flex items-center justify-between border-b border-stone-200/85 pb-3.5 mb-4">
+                            <div className="flex items-center gap-2">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                              </span>
+                              <h4 className="font-semibold text-xs uppercase tracking-wider text-stone-850">Real-Time AI Diagnostics</h4>
+                            </div>
+                            <span className="text-[9px] font-mono font-medium text-stone-400 bg-stone-100 px-2.5 py-0.5 rounded border border-stone-200/60 uppercase">
+                              AI-Core v1.4
+                            </span>
+                          </div>
+                          <div className="space-y-1.5">
+                            {renderMarkdown(aiAnalysis)}
+                          </div>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
       {/* ─── TECH STACK SECTION ────────────────────────────── */}
       <section className="py-12 md:py-20 bg-cosmic-black/25 relative border-t border-stone-200/60">
@@ -1456,7 +1456,7 @@ export default function Home() {
           <div className="w-full">
             <AnimatePresence mode="wait">
               {activeTechTab === 'frontend' && (
-                <motion.div 
+                <motion.div
                   key="frontend"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1486,7 +1486,7 @@ export default function Home() {
               )}
 
               {activeTechTab === 'backend' && (
-                <motion.div 
+                <motion.div
                   key="backend"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1516,7 +1516,7 @@ export default function Home() {
               )}
 
               {activeTechTab === 'devops' && (
-                <motion.div 
+                <motion.div
                   key="devops"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1775,7 +1775,7 @@ export default function Home() {
               <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Reviews</span>
               <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">What our clients <span className="font-serif italic font-light text-blue-600">actually say.</span></h2>
               <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-sm">Read raw feedback from regional brands, medical clinic founders, and local businesses.</p>
-              
+
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="top-right" alt="Chatbot Conversation Illustration" />
               </div>
@@ -1856,7 +1856,7 @@ export default function Home() {
               <p className="text-blue-600 font-mono text-[10px] tracking-widest uppercase mb-3">FAQ</p>
               <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">Frequently <span className="font-serif italic font-light text-blue-600">asked questions.</span></h2>
               <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-sm">Clear details on code ownership, SEO setup, and post-launch updates.</p>
-              
+
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="bottom-right" alt="Chatbot Desk Illustration" />
               </div>
@@ -1907,7 +1907,7 @@ export default function Home() {
                     <svg className="w-3.5 h-3.5 stroke-stone-900 stroke-[2.5]" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                   </motion.button>
                 </Link>
-                <a href="mailto:hello.stackandscale@gmail.com" className="w-full sm:w-auto">
+                <a href="mailto:hello@stackandscale.in" className="w-full sm:w-auto">
                   <motion.button className="w-full sm:w-auto bg-stone-800 border border-stone-700 text-stone-300 hover:text-white hover:border-blue-500/30 font-medium px-7 py-3.5 rounded-xl text-xs uppercase tracking-widest transition-all duration-300 cursor-pointer shadow-sm" whileTap={{ scale: 0.98 }}>
                     Email Our Team
                   </motion.button>
@@ -1970,7 +1970,7 @@ export default function Home() {
           </div>
           <span className="font-normal text-stone-500 normal-case">© {new Date().getFullYear()} Stack&Scale. Custom business websites and IT solutions built to grow online.</span>
           <div className="flex items-center gap-6 text-stone-500">
-            <a href="mailto:hello.stackandscale@gmail.com" className="hover:text-white transition-colors">Email</a>
+            <a href="mailto:hello@stackandscale.in" className="hover:text-white transition-colors">Email</a>
             <a href="https://wa.me/918421526195" className="hover:text-white transition-colors">WhatsApp</a>
             <a href="https://www.instagram.com/stack__and__scale" className="hover:text-white transition-colors">Instagram</a>
           </div>
