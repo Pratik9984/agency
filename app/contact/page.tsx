@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoaderSync } from '../useLoaderSync';
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -69,6 +70,7 @@ function CroppedIllustration({ panel, alt, className = '', priority = false }: C
 
 
 export default function Contact() {
+  const animateTrigger = useLoaderSync();
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [status, setStatus] = useState('idle'); // idle, submitting, success
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -254,7 +256,7 @@ export default function Contact() {
           <motion.div
             className="lg:col-span-5 flex flex-col justify-center text-left gap-5 lg:pr-6"
             initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={animateTrigger ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.45, ease: "easeOut" }}
           >
             <div>
@@ -338,7 +340,7 @@ export default function Contact() {
           <motion.div
             className="lg:col-span-7"
             initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={animateTrigger ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
             transition={{ duration: 0.45, ease: "easeOut", delay: 0.15 }}
           >
             <div className="relative w-full text-left">

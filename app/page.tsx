@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useScroll } from 'framer-motion';
+import { useLoaderSync } from './useLoaderSync';
+import { Project, portfolioProjects } from './work/projectsData';
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -25,6 +27,19 @@ const staggerItem = {
       ease: "easeOut" as const
     }
   }
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1] as any
+    }
+  })
 };
 
 interface CroppedIllustrationProps {
@@ -65,17 +80,6 @@ function CroppedIllustration({ panel, alt, className = '', priority = false }: C
       />
     </div>
   );
-}
-
-
-interface Project {
-  id: number;
-  type: string;
-  title: string;
-  label: string;
-  desc: string;
-  tech: string[];
-  mockup: React.ReactNode;
 }
 
 interface ToolkitItem {
@@ -281,11 +285,50 @@ const toolkitItems: ToolkitItem[] = [
   }
 ];
 
+const testimonials = [
+  { quote: "Stack&Scale got our clinic website loading instantly. Patients started booking appointments online the next week. No more complex setup.", author: "Dr. Aditya Sen", role: "Lotus Health Clinic", initials: "AS" },
+  { quote: "We needed a fast checkout that doesn't disconnect customers. The checkout setup Stack&Scale built using Stripe integration works perfectly on mobile.", author: "Founder & CEO", role: "Aura Crafted Products", initials: "AC" },
+  { quote: "Our logistics business needed a fast local landing page. Stack&Scale optimized our sitemaps and schemas, and we are already seeing more local search traffic.", author: "Operations Manager", role: "Apex Logistics Ltd.", initials: "AL" }
+];
+
 export default function Home() {
+  const animateTrigger = useLoaderSync();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const portfolioContainerRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  const [activeSection, setActiveSection] = useState<string>("");
+
+  useEffect(() => {
+    const sections = ["services", "portfolio", "diagnostics", "offer"];
+    const handleScrollSpy = () => {
+      const scrollPosition = window.scrollY + 220;
+      
+      const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 120;
+      if (isBottom) {
+        setActiveSection("offer");
+        return;
+      }
+
+      let active = "";
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            active = sectionId;
+          }
+        }
+      }
+      setActiveSection(active);
+    };
+
+    window.addEventListener("scroll", handleScrollSpy);
+    handleScrollSpy();
+    return () => window.removeEventListener("scroll", handleScrollSpy);
+  }, []);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -294,7 +337,6 @@ export default function Home() {
   const glowX = useSpring(mouseX, springConfig);
   const glowY = useSpring(mouseY, springConfig);
 
-  const [portfolioFilter, setPortfolioFilter] = useState("all");
 
   // Cost Estimator state variables
   const [estType, setEstType] = useState("local"); // local, ecom, custom
@@ -311,16 +353,6 @@ export default function Home() {
     const newIdx = Math.round(scrollLeft / itemWidth);
     if (newIdx >= 0 && newIdx <= 2) {
       setActiveServiceIdx(newIdx);
-    }
-  };
-  const [activePortfolioIdx, setActivePortfolioIdx] = useState(0);
-  const handlePortfolioScroll = (e: any, count: number) => {
-    if (count <= 1) return;
-    const scrollLeft = e.currentTarget.scrollLeft;
-    const itemWidth = e.currentTarget.scrollWidth / count;
-    const newIdx = Math.round(scrollLeft / itemWidth);
-    if (newIdx >= 0 && newIdx < count) {
-      setActivePortfolioIdx(newIdx);
     }
   };
   const [activeTechTab, setActiveTechTab] = useState<'frontend' | 'backend' | 'devops'>('frontend');
@@ -359,7 +391,6 @@ export default function Home() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 35, restDelta: 0.001 });
 
-  const [activeDrawerProject, setActiveDrawerProject] = useState<Project | null>(null);
   const [activeServiceDetail, setActiveServiceDetail] = useState<any | null>(null);
 
   // Real Core Web Vitals Audit State
@@ -368,8 +399,6 @@ export default function Home() {
   const [scanLogs, setScanLogs] = useState<string[]>([]);
   const [realScores, setRealScores] = useState({ perf: 0, access: 0, best: 0, seo: 0 });
   const [optimizedScores, setOptimizedScores] = useState({ perf: 0, access: 0, best: 0, seo: 0 });
-
-  const [expandedFaqIndices, setExpandedFaqIndices] = useState<number[]>([]);
 
   const getScoreColorClass = (score: number) => {
     if (score >= 90) return { stroke: "stroke-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/5", border: "border-emerald-500/10" };
@@ -457,8 +486,9 @@ export default function Home() {
   };
 
   // Scroll Lock implementation
+  // Scroll Lock implementation
   useEffect(() => {
-    if (isMenuOpen || activeDrawerProject || activeServiceDetail) {
+    if (isMenuOpen || activeServiceDetail) {
       document.body.classList.add('scroll-lock');
     } else {
       document.body.classList.remove('scroll-lock');
@@ -466,12 +496,13 @@ export default function Home() {
     return () => {
       document.body.classList.remove('scroll-lock');
     };
-  }, [isMenuOpen, activeDrawerProject, activeServiceDetail]);
+  }, [isMenuOpen, activeServiceDetail]);
 
   // Testimonials Auto-play timer (6 seconds)
   useEffect(() => {
+    if (testimonials.length < 3) return;
     const timer = setInterval(() => {
-      setTestimonialIdx((prev) => (prev === 2 ? 0 : prev + 1));
+      setTestimonialIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
     }, 6000);
     return () => clearInterval(timer);
   }, []);
@@ -551,27 +582,42 @@ export default function Home() {
                 { label: "Selected Work", href: "/#portfolio" },
                 { label: "Diagnostics", href: "/#diagnostics" },
                 { label: "Estimator", href: "/#offer" }
-              ].map((link, idx) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="hover:text-blue-600 transition-colors duration-200 relative py-2 px-3.5 cursor-pointer rounded-full z-10 text-[11px] font-semibold uppercase tracking-wider text-stone-500"
-                  onMouseEnter={() => setHoveredIdx(idx)}
-                  onMouseLeave={() => setHoveredIdx(null)}
-                >
-                  <span className="relative z-10">{link.label}</span>
-                  {hoveredIdx === idx && (
-                    <motion.span
-                      layoutId="navHover"
-                      className="absolute inset-0 bg-stone-200/60 rounded-full z-0 border border-stone-300/30"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                    />
-                  )}
-                </Link>
-              ))}
+              ].map((link, idx) => {
+                const targetId = link.href.split('#')[1];
+                const isActive = activeSection === targetId;
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className={`transition-colors duration-250 relative py-2 px-3.5 cursor-pointer rounded-full z-10 text-[11px] font-semibold uppercase tracking-wider ${
+                      isActive ? "text-blue-600 font-bold" : "text-stone-500 hover:text-blue-600"
+                    }`}
+                    onMouseEnter={() => setHoveredIdx(idx)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                  >
+                    <span className="relative z-10">
+                      {link.label}
+                      {isActive && (
+                        <motion.span 
+                          layoutId="activeIndicator"
+                          className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-1 h-1 rounded-full bg-blue-600"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                    </span>
+                    {hoveredIdx === idx && (
+                      <motion.span
+                        layoutId="navHover"
+                        className="absolute inset-0 bg-stone-200/60 rounded-full z-0 border border-stone-300/30"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 28 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
@@ -639,7 +685,7 @@ export default function Home() {
         <motion.div
           variants={staggerContainer}
           initial="hidden"
-          animate="visible"
+          animate={animateTrigger ? "visible" : "hidden"}
           className="relative z-10 max-w-7xl mx-auto w-full grid lg:grid-cols-12 gap-6 lg:gap-8 items-center"
         >
           {/* Left Column: Content */}
@@ -692,7 +738,7 @@ export default function Home() {
               </Link>
               <a href="#portfolio" className="w-full sm:w-auto">
                 <motion.button
-                  className="w-full sm:w-auto bg-stone-50 border border-stone-200/80 text-stone-700 hover:text-stone-900 hover:border-blue-600/30 font-medium px-9 py-4 rounded-xl text-sm sm:text-base uppercase tracking-widest transition-all duration-300 backdrop-blur-md cursor-pointer hover:shadow-[0_4px_20px_rgba(37,99,235,0.02)]"
+                  className="w-full sm:w-auto bg-transparent border border-stone-300 text-stone-600 hover:text-stone-900 hover:border-stone-400 font-medium px-9 py-4 rounded-xl text-sm sm:text-base uppercase tracking-widest transition-all duration-300 cursor-pointer"
                   whileTap={{ scale: 0.98 }}
                 >
                   View Selected Work
@@ -754,7 +800,7 @@ export default function Home() {
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
                 </div>
                 <div className="px-2 sm:px-4 py-1 rounded-md bg-slate-900 border border-slate-800 text-[9px] sm:text-[10px] text-slate-400 font-mono tracking-wide truncate max-w-[170px] sm:max-w-none">
-                  https://studio.stackandscale.com
+                  https://stackandscale.in
                 </div>
                 <div className="w-8" />
               </div>
@@ -781,7 +827,7 @@ export default function Home() {
                     </div>
                     <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
                       <p className="text-slate-400 text-[9px] uppercase tracking-wider font-semibold mb-1">Network Responsiveness</p>
-                      <p className="text-lg font-bold text-emerald-400 font-mono">Instant</p>
+                      <p className="text-lg font-bold text-emerald-400 font-mono">&lt; 50ms TTFB</p>
                     </div>
                   </div>
                 </div>
@@ -817,11 +863,8 @@ export default function Home() {
               <motion.p className="text-stone-600 text-sm leading-relaxed font-light mb-4 md:mb-5" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}>
                 We design and develop custom React and Next.js sites. Everything we build is clean, fast, mobile-responsive, and directly optimized for local and national search engines.
               </motion.p>
-              <p className="text-blue-600 text-xs font-semibold animate-pulse block lg:hidden">
-                👆 Tap any capability card below to explore its system architecture.
-              </p>
-              <p className="text-blue-600 text-xs font-semibold hidden lg:block">
-                💡 Click any capability card below to explore its system architecture.
+              <p className="text-blue-600 text-xs font-semibold">
+                Click any capability below to explore its architecture.
               </p>
             </div>
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
@@ -869,9 +912,15 @@ export default function Home() {
                   lighthouse: { perf: 100, access: 100, best: 100, seo: 100 },
                   deliverables: ["JSON-LD local business profile schemas", "Sub-second LCP benchmark speeds", "Semantic HTML5 structural outlines", "Optimized lead capture funnels"]
                 }
-              ].map((item) => (
-                <div
+              ].map((item, idx) => (
+                <motion.div
                   key={item.title}
+                  custom={idx}
+                  variants={rowVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: "-60px" }}
+                  whileHover="hover"
                   onClick={() => setActiveServiceDetail(item)}
                   className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group cursor-pointer hover:bg-stone-50/50 px-4 -mx-4 rounded-xl transition-all duration-300"
                 >
@@ -886,11 +935,18 @@ export default function Home() {
                         <span key={feat} className="px-2.5 py-1 rounded bg-stone-50 border border-stone-200/60 text-stone-700">{feat}</span>
                       ))}
                     </div>
-                    <div className="w-10 h-10 rounded-full border border-stone-200 bg-white flex items-center justify-center text-stone-600 group-hover:text-white group-hover:bg-blue-600 group-hover:border-blue-600 transition-all duration-300">
+                    <motion.div 
+                      variants={{
+                        rest: { x: 0, scale: 1, backgroundColor: "#ffffff", borderColor: "rgba(87, 75, 70, 0.1)", color: "#574B46" },
+                        hover: { x: 4, scale: 1.02, backgroundColor: "#C85A38", borderColor: "#C85A38", color: "#ffffff" }
+                      }}
+                      initial="rest"
+                      className="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300"
+                    >
                       <svg className="w-4 h-4 stroke-current stroke-2" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                    </div>
+                    </motion.div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
         </div>
@@ -903,29 +959,6 @@ export default function Home() {
             <p className="text-blue-600 font-mono text-[10px] tracking-widest uppercase mb-3">Case Studies</p>
             <h2 className="text-xl sm:text-2xl font-medium tracking-tight text-stone-900 mb-3 font-heading">Successful digital products built for <span className="font-serif italic font-light text-blue-600">growing brands.</span></h2>
             <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">Explore bespoke websites and digital platforms built to help brands expand their presence and increase their revenues online.</p>
-
-            <div className="w-full overflow-x-auto scrollbar-none py-2 px-1 flex items-center justify-start md:justify-center gap-2.5 mt-8 flex-nowrap whitespace-nowrap">
-              {[
-                { id: "all", label: "All Systems" },
-                { id: "engines", label: "Operations & SaaS Apps" },
-                { id: "brand-hubs", label: "Brand Hubs" },
-                { id: "local-growth", label: "Local Businesses" }
-              ].map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => {
-                    setPortfolioFilter(category.id);
-                    setActivePortfolioIdx(0);
-                    if (portfolioContainerRef.current) {
-                      portfolioContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-                    }
-                  }}
-                  className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all duration-300 border cursor-pointer shrink-0 ${portfolioFilter === category.id ? "bg-stone-900 text-stone-50 border-stone-900 shadow-md" : "bg-stone-50 text-stone-600 border-stone-200 hover:text-stone-900 hover:border-stone-300"}`}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </div>
           </div>
 
           <motion.div 
@@ -934,77 +967,7 @@ export default function Home() {
             layout
           >
             <AnimatePresence mode="popLayout">
-              {[
-                {
-                  id: 1,
-                  type: "engines",
-                  title: "TradeGuru Telemetry",
-                  label: "Operations & SaaS Apps",
-                  desc: "A custom real-time trading analytics dashboard with active WebSocket streams, lightweight visual rendering, and automated report logs.",
-                  tech: ["Next.js Core", "Recharts", "WebSocket API"],
-                  mockup: (
-                    <div className="w-full h-full bg-stone-50 p-6 relative overflow-hidden flex flex-col justify-between select-none">
-                      <div className="flex justify-between items-center pb-2 border-b border-stone-200/40 text-[10px] text-stone-555 font-mono">
-                        <span>tradeguru_active_streams</span>
-                        <span className="text-emerald-600">● Live Connection</span>
-                      </div>
-                      <div className="flex flex-col gap-1 my-auto text-left">
-                        <p className="text-blue-600 text-[9px] uppercase tracking-wider font-semibold">Active volume</p>
-                        <p className="text-xl font-bold text-stone-900 tracking-tight">4,812 Trades <span className="text-[11px] font-normal font-mono text-emerald-650">+18.2%</span></p>
-                        <svg className="w-full h-14 overflow-visible mt-2" viewBox="0 0 100 40">
-                          <path d="M0,35 Q15,20 30,28 T60,5 T90,12 T100,10 L100,40 L0,40 Z" fill="rgba(37,99,235,0.02)" />
-                          <path d="M0,35 Q15,20 30,28 T60,5 T90,12 T100,10" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                      </div>
-                    </div>
-                  )
-                },
-                {
-                  id: 2,
-                  type: "brand-hubs",
-                  title: "Lotus Health Portal",
-                  label: "Brand Hubs",
-                  desc: "A clean, high-performance website for a medical clinic. Features doctor slot reservation forms, patient intake pipelines, and direct local SEO indexes.",
-                  tech: ["Static Next.js", "Tailwind CSS", "Calendar API"],
-                  mockup: (
-                    <div className="w-full h-full bg-stone-50 p-6 relative overflow-hidden flex flex-col justify-between select-none">
-                      <div className="flex justify-between items-center text-[10px] text-stone-555 font-mono">
-                        <span>lotus_clinic_live</span>
-                        <span>PageSpeed: 100</span>
-                      </div>
-                      <div className="my-auto text-center flex flex-col items-center justify-center gap-2">
-                        <motion.div className="w-10 h-10 rounded-full border border-stone-200 relative flex items-center justify-center" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 20, ease: "linear" }}>
-                          <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-                        </motion.div>
-                        <span className="text-[9px] font-bold tracking-widest text-stone-600 font-mono uppercase">LOTUS CLINIC</span>
-                      </div>
-                    </div>
-                  )
-                },
-                {
-                  id: 3,
-                  type: "local-growth",
-                  title: "Apex Logistics Hub",
-                  label: "Local Businesses",
-                  desc: "A search-engine optimized landing point and service route directory for a logistics company. Achieves a 99+ score in all Lighthouse audits.",
-                  tech: ["Next.js App", "JSON-LD Schemas", "Google Maps API"],
-                  mockup: (
-                    <div className="w-full h-full bg-stone-50 p-6 relative overflow-hidden flex flex-col justify-between select-none">
-                      <div className="flex justify-between items-center text-[10px] text-stone-555 font-mono">
-                        <span>apex_logistics_vitals</span>
-                        <span>LCP: 0.4s</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 my-auto text-left">
-                        <div className="flex-1 flex flex-col">
-                          <span className="text-[9px] font-semibold text-stone-500 tracking-wider uppercase">REGIONAL TARGETS</span>
-                          <p className="text-sm font-semibold text-stone-900 mt-0.5">Core Vitals Passed</p>
-                          <span className="text-xs text-blue-600 font-mono mt-1">100% Mobile Index Ready</span>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                }
-              ].filter(p => portfolioFilter === "all" || p.type === portfolioFilter).map((project) => (
+              {portfolioProjects.map((project) => (
                 <motion.div
                   key={project.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: "spring", duration: 0.45, bounce: 0 }}
                   className="py-12 flex flex-col lg:flex-row gap-8 lg:gap-12 items-center text-left"
@@ -1017,12 +980,12 @@ export default function Home() {
                   <div className="w-full lg:w-1/2 flex flex-col justify-center items-start">
                     <span className="text-blue-600 font-mono text-[9px] uppercase tracking-wider font-semibold block mb-2">{project.label}</span>
                     <h3 className="text-2xl font-medium text-stone-900 mb-3 font-heading tracking-tight">{project.title}</h3>
-                    <p className="text-stone-600 text-sm sm:text-base leading-relaxed font-light mb-6">{project.desc}</p>
+                    <p className="text-stone-650 text-sm sm:text-base leading-relaxed font-light mb-6">{project.desc}</p>
                     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <button onClick={() => setActiveDrawerProject(project)} className="text-xs font-semibold text-blue-600 inline-flex items-center gap-1.5 cursor-pointer hover:text-blue-500 transition-colors">
+                      <Link href={`/work/${project.slug}`} className="text-xs font-semibold text-blue-600 inline-flex items-center gap-1.5 cursor-pointer hover:text-blue-500 transition-colors">
                         Explore System Architecture
                         <svg className="w-3.5 h-3.5 stroke-blue-600 stroke-2" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                      </button>
+                      </Link>
                       <div className="flex flex-wrap gap-1.5 text-[9px] font-mono text-stone-600">
                         {project.tech.map((t, idx) => <span key={idx} className="px-2.5 py-1 rounded bg-stone-50 border border-stone-200/60 text-stone-700">{t}</span>)}
                       </div>
@@ -1032,18 +995,6 @@ export default function Home() {
               ))}
             </AnimatePresence>
           </motion.div>
-
-          {/* Mobile Swipe Indicators */}
-          {(portfolioFilter === "all" ? 3 : 1) > 1 && (
-            <div className="flex justify-center gap-1.5 mt-2 md:hidden">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${activePortfolioIdx === i ? "w-5 bg-blue-600" : "w-1.5 bg-stone-200"}`}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
@@ -1096,12 +1047,32 @@ export default function Home() {
               ].map((p, idx) => (
                 <motion.div
                   key={p.num} 
-                  className="pb-8 last:pb-0 flex flex-col gap-2 text-left relative transition-all duration-300 group"
-                  initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  className="pb-8 last:pb-0 flex flex-col gap-2 text-left relative transition-all duration-300 group cursor-pointer"
+                  initial="hidden"
+                  whileInView="visible"
+                  whileHover="hover"
+                  viewport={{ once: true }}
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    visible: { opacity: 1, x: 0, transition: { duration: 0.5, delay: idx * 0.1 } }
+                  }}
                 >
-                  <div className="absolute -left-[35px] sm:-left-[43px] top-1 w-5 h-5 rounded-full bg-white border-2 border-blue-600 flex items-center justify-center z-10 shadow-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                  </div>
+                  <motion.div 
+                    variants={{
+                      rest: { scale: 1, borderColor: "rgba(200, 90, 56, 0.25)", backgroundColor: "#ffffff" },
+                      hover: { scale: 1.2, borderColor: "#C85A38", backgroundColor: "#C85A38" }
+                    }}
+                    initial="rest"
+                    className="absolute -left-[35px] sm:-left-[43px] top-1 w-5 h-5 rounded-full border-2 flex items-center justify-center z-10 shadow-sm transition-all duration-300"
+                  >
+                    <motion.span 
+                      variants={{
+                        rest: { backgroundColor: "#C85A38", scale: 1 },
+                        hover: { backgroundColor: "#ffffff", scale: 0.8 }
+                      }}
+                      className="w-1.5 h-1.5 rounded-full" 
+                    />
+                  </motion.div>
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-stone-900 text-sm sm:text-base leading-tight font-heading group-hover:text-blue-600 transition-colors">{p.step}</h3>
                     <span className="text-xs font-mono font-bold text-stone-400 bg-stone-50/50 px-2 py-0.5 rounded border border-stone-200/60">{p.num}</span>
@@ -1133,7 +1104,7 @@ export default function Home() {
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-4 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Optimization Diagnostics</span>
               <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">Analyze your current <span className="font-serif italic font-light text-blue-600">website speed.</span></h2>
-              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a diagnostic scan of your system's Core Web Vitals.</p>
+              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a genuine inline scan of your system's Core Web Vitals directly inside this page using Google's PageSpeed Insights API.</p>
               
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="bottom-left" alt="Diagnostics Magnifier Illustration" />
@@ -1154,11 +1125,14 @@ export default function Home() {
                     {auditStatus === 'scanning' ? "Auditing System..." : "Run Live Core Audit"}
                   </motion.button>
                 </form>
+                <p className="text-[10px] text-stone-500 font-light -mt-2 mb-6 text-left">
+                  We connect directly to Google's PageSpeed Insights API—results are fetched and calculated inline below, without opening external tabs.
+                </p>
 
             <AnimatePresence mode="wait">
               {auditStatus === 'idle' && (
                 <motion.div key="idle" className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <p className="text-stone-500 text-xs font-light tracking-wide">Awaiting target system parameters validation above.</p>
+                  <p className="text-stone-500 text-xs font-light tracking-wide">Awaiting target system parameters validation above. This will perform an inline scan via the PageSpeed Insights API.</p>
                 </motion.div>
               )}
 
@@ -1213,7 +1187,15 @@ export default function Home() {
                               <div className="relative w-11 h-11 min-[380px]:w-14 min-[380px]:h-14 flex items-center justify-center">
                                 <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
                                   <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3]" />
-                                  <circle cx="36" cy="36" r="28" className={`fill-none ${col.stroke} stroke-[3.5]`} strokeDasharray="175.9" strokeDashoffset={175.9 - (175.9 * m.score) / 100} strokeLinecap="round" />
+                                  <motion.circle 
+                                    cx="36" cy="36" r="28" 
+                                    className={`fill-none ${col.stroke} stroke-[3.5]`} 
+                                    strokeDasharray="175.9" 
+                                    initial={{ strokeDashoffset: 175.9 }}
+                                    animate={{ strokeDashoffset: 175.9 - (175.9 * m.score) / 100 }}
+                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
+                                    strokeLinecap="round" 
+                                  />
                                 </svg>
                                 <span className={`absolute font-mono text-xs font-bold ${col.text}`}>{m.score}</span>
                               </div>
@@ -1246,7 +1228,15 @@ export default function Home() {
                               <div className="relative w-11 h-11 min-[380px]:w-14 min-[380px]:h-14 flex items-center justify-center">
                                 <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
                                   <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3]" />
-                                  <circle cx="36" cy="36" r="28" className={`fill-none stroke-emerald-600 stroke-[3.5]`} strokeDasharray="175.9" strokeDashoffset={175.9 - (175.9 * m.score) / 100} strokeLinecap="round" />
+                                  <motion.circle 
+                                    cx="36" cy="36" r="28" 
+                                    className={`fill-none stroke-emerald-600 stroke-[3.5]`} 
+                                    strokeDasharray="175.9" 
+                                    initial={{ strokeDashoffset: 175.9 }}
+                                    animate={{ strokeDashoffset: 175.9 - (175.9 * m.score) / 100 }}
+                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
+                                    strokeLinecap="round" 
+                                  />
                                 </svg>
                                 <span className={`absolute font-mono text-xs font-bold text-emerald-600`}>{m.score}</span>
                               </div>
@@ -1301,7 +1291,13 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Frontend Column */}
-            <div className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden flex-col gap-4 ${activeTechTab === 'frontend' ? 'flex' : 'hidden md:flex'}`}>
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 ${activeTechTab === 'frontend' ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}
+            >
               <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">Frontend Core</h3>
@@ -1320,10 +1316,16 @@ export default function Home() {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Backend & DB Column */}
-            <div className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden flex-col gap-4 ${activeTechTab === 'backend' ? 'flex' : 'hidden md:flex'}`}>
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 ${activeTechTab === 'backend' ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}
+            >
               <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">Backend & Database</h3>
@@ -1342,10 +1344,16 @@ export default function Home() {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* DevOps & Cloud Column */}
-            <div className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden flex-col gap-4 ${activeTechTab === 'devops' ? 'flex' : 'hidden md:flex'}`}>
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className={`p-6 rounded-2xl bg-white border border-stone-200 backdrop-blur-sm text-left relative overflow-hidden gap-4 ${activeTechTab === 'devops' ? 'flex flex-col' : 'hidden md:flex md:flex-col'}`}
+            >
               <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.6)]" />
                 <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-700 font-mono">DevOps & Cloud</h3>
@@ -1364,7 +1372,7 @@ export default function Home() {
                   </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1564,7 +1572,7 @@ export default function Home() {
                 </div>
                 <Link href="/contact" className="w-full">
                   <motion.button className="w-full bg-stone-900 text-stone-50 font-semibold text-xs uppercase tracking-widest py-3.5 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md hover:bg-stone-850" whileTap={{ scale: 0.99 }}>
-                    Lock In Configuration
+                    Contact us about this project
                     <svg className="w-3.5 h-3.5 stroke-stone-50 stroke-[2.5]" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                   </motion.button>
                 </Link>
@@ -1605,22 +1613,19 @@ export default function Home() {
             <div className="lg:col-span-7 w-full">
               <div className="max-w-2xl mx-auto relative">
                 <AnimatePresence mode="wait">
-                  {[
-                    { quote: "Stack&Scale got our clinic website loading instantly. Patients started booking appointments online the next week. No more complex setup.", author: "Dr. Aditya Sen", role: "Lotus Health Clinic", initials: "AS" },
-                    { quote: "We needed a fast checkout that doesn't disconnect customers. The checkout setup Stack&Scale built using Stripe integration works perfectly on mobile.", author: "Founder & CEO", role: "Aura Crafted Products", initials: "AC" },
-                    { quote: "Our logistics business needed a fast local landing page. Stack&Scale optimized our sitemaps and schemas, and we are already seeing more local search traffic.", author: "Operations Manager", role: "Apex Logistics Ltd.", initials: "AL" }
-                  ].filter((_, idx) => idx === testimonialIdx).map((testimonial) => (
+                  {testimonials.filter((_, idx) => idx === testimonialIdx).map((testimonial) => (
                     <motion.div
                       key={testimonial.author}
-                      drag="x"
+                      drag={testimonials.length >= 3 ? "x" : false}
                       dragConstraints={{ left: 0, right: 0 }}
                       dragElastic={0.2}
                       onDragEnd={(e, info) => {
+                        if (testimonials.length < 3) return;
                         const swipeThreshold = 55;
                         if (info.offset.x < -swipeThreshold) {
-                          setTestimonialIdx((prev) => (prev === 2 ? 0 : prev + 1));
+                          setTestimonialIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
                         } else if (info.offset.x > swipeThreshold) {
-                          setTestimonialIdx((prev) => (prev === 0 ? 2 : prev - 1));
+                          setTestimonialIdx((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
                         }
                       }}
                       initial={{ opacity: 0 }}
@@ -1650,19 +1655,21 @@ export default function Home() {
                 </AnimatePresence>
               </div>
 
-              <div className="flex items-center justify-center gap-4 mt-10">
-                <button onClick={() => setTestimonialIdx((prev) => (prev === 0 ? 2 : prev - 1))} className="w-10 h-10 border border-stone-200 bg-stone-50/50 hover:border-stone-300 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 transition-all cursor-pointer text-sm">←</button>
-                <div className="flex gap-1.5">
-                  {[0, 1, 2].map((idx) => (
-                    <span
-                      key={idx}
-                      className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === testimonialIdx ? 'bg-blue-600 w-3' : 'bg-stone-200'
-                        }`}
-                    />
-                  ))}
+              {testimonials.length >= 3 && (
+                <div className="flex items-center justify-center gap-4 mt-10">
+                  <button onClick={() => setTestimonialIdx((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))} className="w-10 h-10 border border-stone-200 bg-stone-50/50 hover:border-stone-300 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 transition-all cursor-pointer text-sm">←</button>
+                  <div className="flex gap-1.5">
+                    {testimonials.map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === testimonialIdx ? 'bg-blue-600 w-3' : 'bg-stone-200'
+                          }`}
+                      />
+                    ))}
+                  </div>
+                  <button onClick={() => setTestimonialIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))} className="w-10 h-10 border border-stone-200 bg-stone-50/50 hover:border-stone-300 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 transition-all cursor-pointer text-sm">→</button>
                 </div>
-                <button onClick={() => setTestimonialIdx((prev) => (prev === 2 ? 0 : prev + 1))} className="w-10 h-10 border border-stone-200 bg-stone-50/50 hover:border-stone-300 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 transition-all cursor-pointer text-sm">→</button>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -1685,32 +1692,21 @@ export default function Home() {
 
             {/* Right Column: FAQ Accordion */}
             <div className="lg:col-span-7 w-full">
-              <div className="space-y-3.5">
+              <div className="space-y-8">
                 {[
                   { q: "Do I own 100% of the code?", a: "Yes, absolutely. Once the project is complete, we transfer full GitHub repository ownership to you. There are no ongoing licensing fees, vendor lock-ins, or monthly site builder subscriptions. You own the code forever." },
                   { q: "How does the regional SEO setup work?", a: "We write valid JSON-LD schemas directly into your site's structure to make sure Google understands exactly what services you offer and where. Combined with near-perfect load times, this ranks you higher locally." },
                   { q: "What happens if I need changes later?", a: "Everything is built on standard React and Next.js, so any developer can easily edit the code. For updates, you can work with our team on a simple hourly rate or a monthly support contract." }
-                ].map((faq, idx) => {
-                  const isOpen = expandedFaqIndices.includes(idx);
-                  return (
-                    <div key={idx} className="border-b border-stone-200/60 last:border-b-0 py-1 transition-all duration-300">
-                      <button
-                        onClick={() => isOpen ? setExpandedFaqIndices(expandedFaqIndices.filter(i => i !== idx)) : setExpandedFaqIndices([...expandedFaqIndices, idx])}
-                        className="w-full flex items-center justify-between py-5 text-left font-semibold text-stone-900 text-sm sm:text-base cursor-pointer select-none group min-h-[48px]"
-                      >
-                        <span className="group-hover:text-blue-600 transition-colors">{faq.q}</span>
-                        <span className={`text-blue-600 font-light text-xl transition-transform duration-300 shrink-0 ml-4 ${isOpen ? "rotate-45" : ""}`}>＋</span>
-                      </button>
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: "easeInOut" }}>
-                            <div className="pb-6 text-stone-600 text-xs sm:text-sm font-light leading-relaxed text-left">{faq.a}</div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
+                ].map((faq, idx) => (
+                  <div key={idx} className="border-b border-stone-200/60 last:border-b-0 pb-8 last:pb-0 text-left">
+                    <h3 className="font-semibold text-stone-900 text-sm sm:text-base mb-3 leading-snug">
+                      {faq.q}
+                    </h3>
+                    <p className="text-stone-600 text-xs sm:text-sm font-light leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -1805,165 +1801,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* ─── CASE STUDY DETAIL DRAWER (SLIDE-OVER PANEL) ─── */}
-      <AnimatePresence>
-        {activeDrawerProject && (() => {
-          const p = activeDrawerProject;
-          const detailData: Record<number, {
-            subtitle: string; challenge: string; solution: string;
-            lighthouse: { perf: number; access: number; best: number; seo: number };
-            metrics: { label: string; val: string }[]; blueprint: { step: string; detail: string }[];
-          }> = {
-            1: {
-              subtitle: "Real-time Telemetry Analytics System",
-              challenge: "Syncing active order streams and visual chart indices without causing UI thread bottlenecks under high update rates.",
-              solution: "Designed a lightweight update pipeline and decoupled WebSocket listeners from main rendering states, maintaining steady 60fps responsiveness.",
-              lighthouse: { perf: 100, access: 98, best: 100, seo: 100 },
-              metrics: [
-                { label: "First Contentful Paint (FCP)", val: "0.3s" },
-                { label: "Largest Contentful Paint (LCP)", val: "0.8s" },
-                { label: "Data Update Stream Rate", val: "60 FPS" },
-                { label: "Asset Payload Optimization", val: "-55%" }
-              ],
-              blueprint: [
-                { step: "Edge Request Routing", detail: "Vercel edge functions catch WebSocket handshakes and handle initial load requests near the client." },
-                { step: "Decoupled Store Update", detail: "Telemetry updates only refresh the exact cell elements instead of triggering full chart redraws." }
-              ]
-            },
-            2: {
-              subtitle: "Clinical Intake & Scheduling Portal",
-              challenge: "Standard medical booking widgets caused page shifts (CLS) and loaded heavy stylesheets, causing prospective patients to leave the site.",
-              solution: "Developed a custom booking flow using static rendering blocks and lightweight client-side verification to remove shifts completely.",
-              lighthouse: { perf: 98, access: 100, best: 98, seo: 100 },
-              metrics: [
-                { label: "Main Thread Delay Time", val: "12ms" },
-                { label: "Booking Flow Latency", val: "0ms" },
-                { label: "Media Size Compression Index", val: "-72%" },
-                { label: "Appointment Load Speed", val: "16ms" }
-              ],
-              blueprint: [
-                { step: "Layout Primitives Alignment", detail: "Form elements load with fixed dimensions to guarantee zero shift during scheduling flow." }
-              ]
-            },
-            3: {
-              subtitle: "Optimized Regional Service Portal",
-              challenge: "The firm's prior site loaded heavy media files and lacked structured metadata schemas, hurting regional Google search visibility.",
-              solution: "Configured JSON-LD local business profiles, built automated static sitemaps, and edge-routed all static assets for instant load speeds.",
-              lighthouse: { perf: 100, access: 100, best: 100, seo: 100 },
-              metrics: [
-                { label: "Schema Discovery Index", val: "100/100" },
-                { label: "Inbound Lead Conversions Increase", val: "+44.2%" },
-                { label: "Average Page Speed Paint", val: "0.9s" },
-                { label: "Bundle Overhead Reduction", val: "-68%" }
-              ],
-              blueprint: [
-                { step: "Schema Optimization Flow", detail: "Valid structured schemas serve local service markers directly to search engine crawlers during initial requests." }
-              ]
-            }
-          };
-
-          const data = detailData[p.id] || detailData[1];
-
-          return (
-            <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-              <motion.div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveDrawerProject(null)} />
-              <motion.div
-                className="relative w-full md:max-w-xl bg-cosmic-black border-l border-stone-200 h-full flex flex-col justify-between shadow-2xl z-10 overflow-y-auto custom-scrollbar"
-                initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", duration: 0.45, bounce: 0 }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 1000 }}
-                dragElastic={{ left: 0.05, right: 0.5 }}
-                onDragEnd={(e, info) => {
-                  if (info.offset.x > 150) {
-                    setActiveDrawerProject(null);
-                  }
-                }}
-              >
-                <div className="p-6 sm:p-8 border-b border-stone-200 flex items-center justify-between">
-                  <div className="text-left">
-                    <span className="text-[9.5px] uppercase tracking-wider font-mono font-medium text-blue-600">{p.label}</span>
-                    <h3 className="text-lg font-semibold text-stone-900 font-heading mt-1">{p.title}</h3>
-                  </div>
-                  <button onClick={() => setActiveDrawerProject(null)} className="w-10 h-10 rounded-xl border border-stone-200 bg-stone-50 flex items-center justify-center text-stone-550 hover:text-stone-900 transition-colors cursor-pointer shrink-0 ml-4">✕</button>
-                </div>
-
-                <div className="p-6 sm:p-8 flex-1 space-y-8 text-left">
-                  <div>
-                    <h4 className="text-xs font-semibold text-stone-900 uppercase tracking-wider mb-2">{data.subtitle}</h4>
-                    <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">{p.desc}</p>
-                  </div>
-
-                  <div className="p-5 rounded-xl bg-stone-50 border border-stone-200">
-                    <span className="text-[9px] uppercase tracking-wider font-mono text-blue-600 block mb-4">Lighthouse Metric Benchmarks</span>
-                    <div className="grid grid-cols-4 gap-2 text-center">
-                      {[
-                        { score: data.lighthouse.perf, title: "Performance" },
-                        { score: data.lighthouse.access, title: "Accessibility" },
-                        { score: data.lighthouse.best, title: "Best Practices" },
-                        { score: data.lighthouse.seo, title: "SEO" }
-                      ].map((l, idx) => (
-                        <div key={idx} className="flex flex-col items-center gap-1.5">
-                          <div className="w-10 h-10 rounded-full border border-stone-200 bg-blue-500/5 flex items-center justify-center">
-                            <span className="text-xs font-bold font-mono text-blue-600">{l.score}</span>
-                          </div>
-                          <span className="text-[8px] uppercase tracking-wider text-stone-500 font-medium">{l.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <span className="text-[9px] uppercase tracking-wider font-mono text-blue-600 block">Performance Parameters</span>
-                    <div className="grid grid-cols-2 gap-3">
-                      {data.metrics.map((m, idx) => (
-                        <div key={idx} className="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
-                          <p className="text-[8px] font-semibold text-stone-500 uppercase tracking-wider mb-0.5">{m.label}</p>
-                          <p className="text-xs font-bold text-stone-900 font-mono">{m.val}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="text-xs font-semibold text-stone-900 uppercase tracking-wider mb-1.5">The Technical Challenge</h5>
-                    <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">{data.challenge}</p>
-                  </div>
-
-                  <div>
-                    <h5 className="text-xs font-semibold text-stone-900 uppercase tracking-wider mb-1.5">The Applied Solution</h5>
-                    <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-light">{data.solution}</p>
-                  </div>
-
-                  <div className="space-y-3 pb-4">
-                    <span className="text-[9px] uppercase tracking-wider font-mono text-blue-600 block">System Sequence Blueprint</span>
-                    <div className="space-y-4">
-                      {data.blueprint.map((b, idx) => (
-                        <div key={idx} className="flex gap-4 items-start text-xs sm:text-sm">
-                          <div className="w-5 h-5 rounded bg-stone-50 border border-stone-200 text-blue-600 font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">0{idx + 1}</div>
-                          <div>
-                            <p className="font-semibold text-stone-900">{b.step}</p>
-                            <p className="text-stone-600 text-xs font-light mt-0.5 leading-relaxed">{b.detail}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 border-t border-stone-200 bg-stone-50/95 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-stone-500">Project Strategy Aligned</span>
-                  <Link href="/contact" onClick={() => setActiveDrawerProject(null)}>
-                    <motion.button className="bg-stone-900 text-stone-50 font-semibold text-[11px] uppercase tracking-wider px-5 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer shadow-md hover:bg-stone-850" whileTap={{ scale: 0.98 }}>
-                      Initiate Project Intake
-                      <svg className="w-3.5 h-3.5 stroke-stone-50 stroke-[2.5]" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                    </motion.button>
-                  </Link>
-                </div>
-              </motion.div>
-            </div>
-          );
-        })()}
-      </AnimatePresence>
 
       {/* ─── CAPABILITY DETAIL DRAWER (SLIDE-OVER PANEL) ─── */}
       <AnimatePresence>

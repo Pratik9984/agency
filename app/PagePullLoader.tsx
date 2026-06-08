@@ -108,8 +108,10 @@ const PullingCharacter = ({
           </linearGradient>
         </defs>
 
+        {/* SHADOWS */}
         <ellipse cx="110" cy="205" rx="55" ry="7" fill="rgba(0,0,0,0.18)" />
 
+        {/* GUY CHARACTER (Foreground Layer) */}
         <motion.g style={{ transformOrigin: "125px 145px", rotate: backLegRotate }}>
           <path d="M 125 145 L 145 180 L 132 205" stroke="url(#pants)" strokeWidth="15" strokeLinecap="round" strokeLinejoin="round" fill="none" />
           <path d="M 132 205 L 118 207 L 115 198 Z" fill="#ffffff" />
@@ -174,8 +176,24 @@ export default function PagePullLoader() {
 
   useEffect(() => {
     setMounted(true);
+    
+    if (typeof window !== 'undefined') {
+      window.__loaderComplete = window.__loaderComplete || false;
+    }
+
     const unsubscribe = tension.on("change", (latest) => {
       setIsVibrating(latest > 0.8);
+    });
+
+    let fired = false;
+    const unsubscribePct = pct.on("change", (latest) => {
+      if (latest > 40 && !fired) {
+        fired = true;
+        if (typeof window !== 'undefined') {
+          window.__loaderComplete = true;
+          window.dispatchEvent(new CustomEvent('loader-complete'));
+        }
+      }
     });
 
     if (shouldReduceMotion) {
@@ -185,11 +203,16 @@ export default function PagePullLoader() {
         ease: "easeOut",
         onComplete: () => {
           setIsLoaderActive(false);
+          if (typeof window !== 'undefined') {
+            window.__loaderComplete = true;
+            window.dispatchEvent(new CustomEvent('loader-complete'));
+          }
         }
       });
       return () => {
         animPct.stop();
         unsubscribe();
+        unsubscribePct();
       };
     }
 
@@ -243,6 +266,7 @@ export default function PagePullLoader() {
     return () => {
       clearTimeout(delayTimer);
       unsubscribe();
+      unsubscribePct();
     };
   }, [pct, slack, tension, shouldReduceMotion]);
 
@@ -251,6 +275,18 @@ export default function PagePullLoader() {
   const pageY = useTransform(pct, (v) => shouldReduceMotion ? "0vh" : `${v}vh`);
   const pageOpacity = useTransform(pct, [0, 120], [1, 0]);
   const pageRotate = useTransform(pct, [0, 35, 120], [0, 1.2, 0.4]); // Subtle swing for loose paper feel
+
+  // Dynamic Character Y coordinate (keeps character fully visible at start of animation)
+  const characterY = useTransform(pct, (v) => {
+    if (shouldReduceMotion) return "0px";
+    if (typeof window === 'undefined') return "0px";
+    const vh = window.innerHeight;
+    const py = (v / 100) * vh;
+    const isMobile = window.innerWidth < 640;
+    const offset = isMobile ? 45 : 60;
+    // Clamps the character screen Y to a minimum of 8px to prevent clipping at the top
+    return `${Math.max(8, py - offset)}px`;
+  });
 
   // Compute Rope Path dynamically
   const ropeD = useTransform([pct, slack], (values: any) => {
@@ -268,14 +304,16 @@ export default function PagePullLoader() {
     // Page top-left translation in pixels (X is fixed at 0)
     const py = (latestPct / 100) * vh;
     
-    // Hand offset in character SVG (adjusted for container position and scale)
     const isMobile = vw < 640;
     const handOffsetX = isMobile ? (vw / 2 - 22) : (vw / 2 - 29);
-    const handOffsetY = isMobile ? -7 : -10;
     
-    // Target coordinate (hand position in screen space)
+    // Calculate actual screen Y coordinate of character container including start clamping
+    const characterScreenY = Math.max(8, py - (isMobile ? 45 : 60));
+    const handOffsetInContainer = isMobile ? 38 : 50;
+    
+    // Target coordinate (hand position in screen space, keeps rope attached to hand)
     const x2 = handOffsetX;
-    const y2 = py + handOffsetY;
+    const y2 = characterScreenY + handOffsetInContainer;
     
     if (latestSlack > 0.05) {
       // Curved sagging rope path (sagging outwards/laterally to the right)
@@ -336,7 +374,7 @@ export default function PagePullLoader() {
             {/* 3D Page Curl effect on top border (acts as the scroll roll-up) */}
             <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-stone-200/90 via-stone-100/40 to-transparent pointer-events-none transform -translate-y-[98%] rounded-b-[16px] border-b border-stone-300/20 shadow-[0_10px_15px_rgba(0,0,0,0.05)]" />
 
-            {/* Subtle Brand Logo & Tagline inside the loading sheet */}
+            {/* Subtle Brand Logo, Coding Character & Tagline inside the loading sheet */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 pointer-events-none select-none">
               {/* Animation CSS style for the thumbs-up emoji */}
               <style dangerouslySetInnerHTML={{ __html: `
@@ -351,7 +389,7 @@ export default function PagePullLoader() {
               `}} />
 
               {/* Logo */}
-              <div className="flex items-center gap-3 opacity-20">
+              <div className="flex items-center gap-3 opacity-25">
                 <img src="/icon.png" alt="" className="w-10 h-10 object-contain" />
                 <span className="font-semibold text-xl tracking-tight text-stone-900 font-heading">
                   Stack<span className="text-stone-500 font-light">&Scale</span>
@@ -361,16 +399,19 @@ export default function PagePullLoader() {
               {/* Tagline */}
               <div className="text-center px-6 max-w-sm sm:max-w-md">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-medium tracking-tight text-stone-700/95 font-heading">
-                  You are at the right place <span className="animate-bounce-subtle">👍</span>
+                  Custom high-performance web development
                 </h2>
+                <p className="text-xs text-stone-500 font-light mt-2 uppercase tracking-widest font-mono">
+                  Now taking projects for Q3 2026
+                </p>
               </div>
             </div>
           </motion.div>
 
           {/* Character sitting on top, moving with the page crease */}
-          {!shouldReduceMotion && (
+          {mounted && !shouldReduceMotion && (
             <motion.div
-              style={{ x: pageX, y: pageY }}
+              style={{ x: pageX, y: characterY }}
               className="absolute top-0 left-1/2 z-[9999] pointer-events-none"
             >
               {/* Position character relative to the peeled corner */}
