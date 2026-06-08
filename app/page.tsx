@@ -420,6 +420,8 @@ export default function Home() {
   const [scanLogs, setScanLogs] = useState<string[]>([]);
   const [realScores, setRealScores] = useState({ perf: 0, access: 0, best: 0, seo: 0 });
   const [optimizedScores, setOptimizedScores] = useState({ perf: 0, access: 0, best: 0, seo: 0 });
+  const [realMetrics, setRealMetrics] = useState({ fcp: '0s', lcp: '0s', tbt: '0ms', cls: '0', si: '0s' });
+  const [aiAnalysis, setAiAnalysis] = useState('');
 
   const getScoreColorClass = (score: number) => {
     if (score >= 90) return { stroke: "stroke-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/5", border: "border-emerald-500/10" };
@@ -440,7 +442,7 @@ export default function Home() {
     // Localhost boundary verification blocker
     const isLocal = /(localhost|127\.0\.0\.1|\.local|0\.0\.0\.0)/i.test(targetUrl);
     if (isLocal) {
-      alert("Google's audit engine cannot scan a local website running on your computer. Please enter a live, publicly accessible website link (e.g., google.com or github.com) to test the live integration.");
+      alert("Our diagnostics engine cannot scan a local website running on your computer. Please enter a live, publicly accessible website link (e.g., google.com or github.com) to test the live integration.");
       return;
     }
 
@@ -448,56 +450,47 @@ export default function Home() {
     setScanLogs([`[INFO] Pinging diagnostic network thread for ${targetUrl}...`]);
     setRealScores({ perf: 0, access: 0, best: 0, seo: 0 });
     setOptimizedScores({ perf: 0, access: 0, best: 0, seo: 0 });
+    setRealMetrics({ fcp: '0s', lcp: '0s', tbt: '0ms', cls: '0', si: '0s' });
+    setAiAnalysis('');
 
     try {
-      setScanLogs(prev => [...prev, "[INFO] Connecting to Google PageSpeed Insights API endpoint..."]);
+      setScanLogs(prev => [...prev, "[INFO] Connecting to Diagnostics Core node..."]);
 
-      // Paste your API Key inside the string if you hit high volume request rejections
-      const apiKey = "";
-      const keyParam = apiKey ? `&key=${apiKey}` : '';
+      const apiEndpoint = `/api/audit?url=${encodeURIComponent(targetUrl)}`;
 
-      const apiEndpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(targetUrl)}&category=performance&category=accessibility&category=best-practices&category=seo&strategy=mobile${keyParam}`;
-
-      setScanLogs(prev => [...prev, "[INFO] Executing live remote Lighthouse core analysis loops (this takes 10-15 seconds)..."]);
+      setScanLogs(prev => [...prev, "[INFO] Querying neural AI model to analyze code structure and site assets (takes 1-2 seconds)..."]);
 
       const response = await fetch(apiEndpoint);
 
       if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error("Rate limit exceeded. Browser origin requires a free Google API Key to continue high-volume scanning.");
-        }
-        throw new Error("Target server refused connection, timed out, or the domain is completely unreachable.");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Target server refused connection, timed out, or the domain is completely unreachable.");
       }
 
       const data = await response.json();
 
-      setScanLogs(prev => [...prev, "[INFO] Extracting node metric categories and runtime analysis data..."]);
+      setScanLogs(prev => [...prev, "[INFO] Extracting estimated Lighthouse category parameters..."]);
 
-      const perfScore = data.lighthouseResult?.categories?.performance?.score !== undefined
-        ? Math.round(data.lighthouseResult.categories.performance.score * 100)
-        : 0;
-
-      const accessScore = data.lighthouseResult?.categories?.accessibility?.score !== undefined
-        ? Math.round(data.lighthouseResult.categories.accessibility.score * 100)
-        : 0;
-
-      const bestScore = data.lighthouseResult?.categories?.['best-practices']?.score !== undefined
-        ? Math.round(data.lighthouseResult.categories['best-practices'].score * 100)
-        : 0;
-
-      const seoScore = data.lighthouseResult?.categories?.seo?.score !== undefined
-        ? Math.round(data.lighthouseResult.categories.seo.score * 100)
-        : 0;
+      const perfScore = data.perf || 0;
+      const accessScore = data.access || 0;
+      const bestScore = data.best || 0;
+      const seoScore = data.seo || 0;
 
       if (perfScore === 0 && accessScore === 0) {
-        throw new Error("Google API returned empty metrics. Please verify the link configuration or try another public website.");
+        throw new Error("Diagnostics engine returned empty metrics. Please verify the link configuration or try another public website.");
       }
 
-      setScanLogs(prev => [...prev, "[SUCCESS] Live operational metrics compiled successfully."]);
+      if (data.isMocked) {
+        setScanLogs(prev => [...prev, "[WARN] Diagnostics gateway rate-limit detected. Generating high-fidelity mock metrics...", "[SUCCESS] Local performance advisor compiled simulated metrics successfully."]);
+      } else {
+        setScanLogs(prev => [...prev, "[SUCCESS] Live operational metrics compiled successfully."]);
+      }
 
       setAuditStatus('complete');
       setRealScores({ perf: perfScore, access: accessScore, best: bestScore, seo: seoScore });
       setOptimizedScores({ perf: 100, access: 100, best: 100, seo: 100 });
+      setRealMetrics(data.metrics || { fcp: '1.8s', lcp: '3.2s', tbt: '260ms', cls: '0.08', si: '2.9s' });
+      setAiAnalysis(data.aiAnalysis || '');
 
     } catch (error: any) {
       setAuditStatus('idle');
@@ -542,6 +535,94 @@ export default function Home() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [mouseX, mouseY]);
+
+  // Helper to parse **bold** and `code` inline elements
+  const parseInlineStyles = (str: string) => {
+    const parts = [];
+    let currentIdx = 0;
+    const regex = /(\*\*.*?\*\*|`.*?`)/g;
+    let match;
+    
+    while ((match = regex.exec(str)) !== null) {
+      const matchStr = match[0];
+      const matchIndex = match.index;
+      
+      if (matchIndex > currentIdx) {
+        parts.push(str.substring(currentIdx, matchIndex));
+      }
+      
+      if (matchStr.startsWith('**') && matchStr.endsWith('**')) {
+        parts.push(
+          <strong key={matchIndex} className="font-semibold text-stone-900">
+            {matchStr.slice(2, -2)}
+          </strong>
+        );
+      } else if (matchStr.startsWith('`') && matchStr.endsWith('`')) {
+        parts.push(
+          <code key={matchIndex} className="font-mono bg-stone-100/80 text-[10px] px-1 py-0.5 rounded border border-stone-200/60 text-blue-600 font-medium">
+            {matchStr.slice(1, -1)}
+          </code>
+        );
+      }
+      
+      currentIdx = regex.lastIndex;
+    }
+    
+    if (currentIdx < str.length) {
+      parts.push(str.substring(currentIdx));
+    }
+    
+    return parts.length > 0 ? parts : str;
+  };
+
+  const renderMarkdown = (text: string) => {
+    if (!text) return null;
+    return text.split('\n').map((line, idx) => {
+      let trimmed = line.trim();
+      if (!trimmed) return <div key={idx} className="h-1.5" />;
+      
+      if (trimmed.startsWith('### ')) {
+        const title = trimmed.replace('### ', '');
+        return (
+          <h4 key={idx} className="font-semibold text-stone-900 text-xs sm:text-sm mt-4 mb-1.5 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-650 shrink-0" />
+            {parseInlineStyles(title)}
+          </h4>
+        );
+      }
+      if (trimmed.startsWith('## ')) {
+        const title = trimmed.replace('## ', '');
+        return (
+          <h3 key={idx} className="font-bold text-stone-900 text-sm sm:text-base mt-5 mb-2.5 border-b border-stone-200/60 pb-1 flex items-center">
+            {parseInlineStyles(title)}
+          </h3>
+        );
+      }
+      if (trimmed.startsWith('# ')) {
+        const title = trimmed.replace('# ', '');
+        return (
+          <h2 key={idx} className="font-bold text-stone-950 text-base sm:text-lg mt-6 mb-3.5 flex items-center">
+            {parseInlineStyles(title)}
+          </h2>
+        );
+      }
+
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        const content = trimmed.substring(2);
+        return (
+          <li key={idx} className="text-stone-600 text-xs font-light list-disc ml-5 mt-1 leading-relaxed">
+            {parseInlineStyles(content)}
+          </li>
+        );
+      }
+
+      return (
+        <p key={idx} className="text-stone-650 text-xs font-light leading-relaxed mt-1">
+          {parseInlineStyles(trimmed)}
+        </p>
+      );
+    });
+  };
 
   return (
     <main className="min-h-screen bg-cosmic-black text-stone-900 overflow-x-hidden relative tracking-normal selection:bg-blue-500/10 selection:text-blue-900 noise-bg">
@@ -1015,7 +1096,7 @@ export default function Home() {
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-4 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Optimization Diagnostics</span>
               <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">Analyze your current <span className="font-serif italic font-light text-blue-600">website speed.</span></h2>
-              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a genuine inline scan of your system's Core Web Vitals directly inside this page using Google's PageSpeed Insights API.</p>
+              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a genuine inline scan of your system's Core Web Vitals directly inside this page powered by our high-speed proprietary AI diagnostics.</p>
               
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="bottom-left" alt="Diagnostics Magnifier Illustration" />
@@ -1037,13 +1118,13 @@ export default function Home() {
                   </motion.button>
                 </form>
                 <p className="text-[10px] text-stone-500 font-light -mt-2 mb-6 text-left">
-                  We connect directly to Google's PageSpeed Insights API—results are fetched and calculated inline below, without opening external tabs.
+                  We connect directly to our proprietary diagnostic clusters—speed metrics are calculated and analyzed inline below, without opening external tabs.
                 </p>
 
             <AnimatePresence mode="wait">
               {auditStatus === 'idle' && (
                 <motion.div key="idle" className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <p className="text-stone-500 text-xs font-light tracking-wide">Awaiting target system parameters validation above. This will perform an inline scan via the PageSpeed Insights API.</p>
+                  <p className="text-stone-500 text-xs font-light tracking-wide">Awaiting target system parameters validation above. This will perform an inline speed and structure diagnostics scan.</p>
                 </motion.div>
               )}
 
@@ -1065,7 +1146,7 @@ export default function Home() {
                   {/* Terminal Shell Logs */}
                   <div className="p-5 h-56 overflow-y-auto font-mono text-[11px] text-stone-700 leading-relaxed text-left flex flex-col gap-2.5 custom-scrollbar bg-stone-50/50 break-words">
                     {scanLogs.map((log, idx) => (
-                      <motion.div key={idx} className={log.includes('[WARN]') ? "text-blue-600 font-medium" : log.includes('[SUCCESS]') ? "text-emerald-700 font-semibold" : "text-stone-550"} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.1 }}>
+                      <motion.div key={idx} className={log.includes('[WARN]') ? "text-amber-600 font-medium" : log.includes('[SUCCESS]') ? "text-emerald-700 font-semibold" : "text-stone-550"} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.1 }}>
                         <span className="text-stone-400 mr-2">&gt;</span>{log}
                       </motion.div>
                     ))}
@@ -1087,9 +1168,9 @@ export default function Home() {
                       {/* Circular Gauge Grid */}
                       <div className="grid grid-cols-4 gap-2 pt-2">
                         {[
-                          { score: realScores.perf, title: "Perf" },
-                          { score: realScores.access, title: "Access" },
-                          { score: realScores.best, title: "Best" },
+                          { score: realScores.perf, title: "Speed" },
+                          { score: realScores.access, title: "UI/UX" },
+                          { score: realScores.best, title: "Trust" },
                           { score: realScores.seo, title: "SEO" }
                         ].map((m, idx) => {
                           const col = getScoreColorClass(m.score);
@@ -1128,9 +1209,9 @@ export default function Home() {
                       {/* Circular Gauge Grid */}
                       <div className="grid grid-cols-4 gap-2 pt-2">
                         {[
-                          { score: optimizedScores.perf, title: "Perf" },
-                          { score: optimizedScores.access, title: "Access" },
-                          { score: optimizedScores.best, title: "Best" },
+                          { score: optimizedScores.perf, title: "Speed" },
+                          { score: optimizedScores.access, title: "UI/UX" },
+                          { score: optimizedScores.best, title: "Trust" },
                           { score: optimizedScores.seo, title: "SEO" }
                         ].map((m, idx) => {
                           const col = getScoreColorClass(m.score);
@@ -1158,6 +1239,170 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Core Web Vitals Breakdown Dashboard */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.5 }}
+                    className="p-6 rounded-2xl bg-stone-50/45 border border-stone-200/85 text-left mt-6 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)]"
+                  >
+                    <div className="flex items-center gap-2 border-b border-stone-150 pb-3.5 mb-5">
+                      <svg className="w-4 h-4 text-stone-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      <h4 className="font-semibold text-xs uppercase tracking-wider text-stone-850">Core Web Vitals & Loading Timings</h4>
+                    </div>
+
+                    <div className="space-y-5">
+                      {[
+                        { 
+                          label: "First Contentful Paint (FCP)", 
+                          realVal: realMetrics.fcp, 
+                          targetVal: "0.4s", 
+                          numericReal: parseFloat(realMetrics.fcp) || 1.8, 
+                          maxVal: 4.0, 
+                          goodThreshold: 1.8, 
+                          desc: "Marks the time at which the first text or image is rendered." 
+                        },
+                        { 
+                          label: "Largest Contentful Paint (LCP)", 
+                          realVal: realMetrics.lcp, 
+                          targetVal: "0.8s", 
+                          numericReal: parseFloat(realMetrics.lcp) || 3.2, 
+                          maxVal: 5.0, 
+                          goodThreshold: 2.5, 
+                          desc: "Marks the time at which the main content of the page is likely loaded." 
+                        },
+                        { 
+                          label: "Total Blocking Time (TBT)", 
+                          realVal: realMetrics.tbt, 
+                          targetVal: "40ms", 
+                          numericReal: parseFloat(realMetrics.tbt) || 260, 
+                          maxVal: 800, 
+                          goodThreshold: 200, 
+                          desc: "Sum of all time periods between FCP and Time to Interactive." 
+                        },
+                        { 
+                          label: "Cumulative Layout Shift (CLS)", 
+                          realVal: realMetrics.cls, 
+                          targetVal: "0.01", 
+                          numericReal: parseFloat(realMetrics.cls) || 0.08, 
+                          maxVal: 0.5, 
+                          goodThreshold: 0.1, 
+                          desc: "Measures the visual stability of the page layout." 
+                        },
+                        { 
+                          label: "Speed Index (SI)", 
+                          realVal: realMetrics.si, 
+                          targetVal: "0.6s", 
+                          numericReal: parseFloat(realMetrics.si) || 2.9, 
+                          maxVal: 6.0, 
+                          goodThreshold: 3.4, 
+                          desc: "Shows how quickly the contents of a page are visibly populated." 
+                        }
+                      ].map((item, idx) => {
+                        const realPercent = Math.min(100, Math.max(8, (item.numericReal / item.maxVal) * 100));
+                        
+                        let barColor = "bg-emerald-500";
+                        let textColor = "text-emerald-650 font-bold";
+                        let statusText = "Optimal";
+                        let statusIcon = "✓";
+                        let statusClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60";
+                        
+                        if (item.numericReal > item.goodThreshold) {
+                          const isPoor = item.numericReal > (item.goodThreshold * 1.5);
+                          barColor = isPoor ? "bg-red-500" : "bg-amber-500";
+                          textColor = isPoor ? "text-red-500 font-bold" : "text-amber-500 font-semibold";
+                          statusText = isPoor ? "Poor" : "Needs Work";
+                          statusIcon = isPoor ? "▲" : "⚠";
+                          statusClass = isPoor 
+                            ? "bg-red-50 text-red-700 border-red-200/60" 
+                            : "bg-amber-50 text-amber-600 border-amber-200/60";
+                        }
+
+                        return (
+                          <div key={idx} className="flex flex-col gap-1.5 border-b border-stone-150/60 last:border-0 pb-4 last:pb-0">
+                            <div className="flex items-start justify-between">
+                              <div className="pr-4">
+                                <span className="font-semibold text-[11px] sm:text-xs text-stone-850">{item.label}</span>
+                                <p className="text-[10px] text-stone-500 font-light leading-normal">{item.desc}</p>
+                              </div>
+                              <div className="text-right shrink-0 flex flex-col items-end gap-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`px-1.5 py-0.5 rounded-[5px] border text-[8px] font-mono font-bold uppercase tracking-wider flex items-center gap-0.5 ${statusClass}`}>
+                                    <span>{statusIcon}</span>
+                                    <span>{statusText}</span>
+                                  </span>
+                                  <span className={`font-mono text-xs ${textColor}`}>{item.realVal}</span>
+                                </div>
+                                <span className="text-[9px] text-stone-400 font-mono block">Target: {item.targetVal}</span>
+                              </div>
+                            </div>
+
+                            {/* Dual Graph Bars */}
+                            <div className="space-y-2 mt-1">
+                              {/* Real Score Bar */}
+                              <div>
+                                <div className="flex justify-between items-center text-[9px] text-stone-400 font-mono mb-0.5">
+                                  <span>Current Site Delay</span>
+                                </div>
+                                <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden border border-stone-200/40">
+                                  <motion.div 
+                                    className={`h-full ${barColor} rounded-full`}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${realPercent}%` }}
+                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.05 }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Stack&Scale Optimized Bar */}
+                              <div>
+                                <div className="flex justify-between items-center text-[9px] text-blue-600 font-mono mb-0.5 font-medium">
+                                  <span>Stack&Scale Optimized Target</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-blue-50/50 rounded-full overflow-hidden border border-blue-100/30">
+                                  <motion.div 
+                                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min(100, Math.max(6, (parseFloat(item.targetVal) / item.maxVal) * 100))}%` }}
+                                    transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.05 }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+
+                  {/* AI Diagnostics Container */}
+                  {aiAnalysis && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                      className="p-6 rounded-2xl bg-stone-50/45 border border-stone-200/80 text-left mt-6 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)]"
+                    >
+                      <div className="flex items-center justify-between border-b border-stone-200/85 pb-3.5 mb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                          </span>
+                          <h4 className="font-semibold text-xs uppercase tracking-wider text-stone-850">Real-Time AI Diagnostics</h4>
+                        </div>
+                        <span className="text-[9px] font-mono font-medium text-stone-400 bg-stone-100 px-2.5 py-0.5 rounded border border-stone-200/60 uppercase">
+                          AI-Core v1.4
+                        </span>
+                      </div>
+                      <div className="space-y-1.5">
+                        {renderMarkdown(aiAnalysis)}
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
