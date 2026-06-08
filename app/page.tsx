@@ -435,6 +435,14 @@ export default function Home() {
     if (!urlInput.trim()) return;
 
     let targetUrl = urlInput.trim();
+
+    // Strict website validation check
+    const domainRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/;
+    if (!domainRegex.test(targetUrl)) {
+      alert("Please enter a valid website domain (e.g., yourbusiness.com or https://website.com) to run diagnostics.");
+      return;
+    }
+
     if (!/^https?:\/\//i.test(targetUrl)) {
       targetUrl = `https://${targetUrl}`;
     }
