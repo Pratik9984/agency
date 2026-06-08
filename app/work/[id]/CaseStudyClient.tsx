@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoaderSync } from '../../useLoaderSync';
 import { Project } from '../projectsData';
+import Navbar from '../../Navbar';
 
 interface CaseStudyClientProps {
   project: Project;
@@ -12,144 +13,16 @@ interface CaseStudyClientProps {
 
 export default function CaseStudyClient({ project }: CaseStudyClientProps) {
   const animateTrigger = useLoaderSync();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-
-  // Scroll Lock implementation for mobile nav
-  useEffect(() => {
-    if (isMenuOpen) {
-      document.body.classList.add('scroll-lock');
-    } else {
-      document.body.classList.remove('scroll-lock');
-    }
-    return () => {
-      document.body.classList.remove('scroll-lock');
-    };
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <main className="min-h-screen bg-cosmic-black text-stone-900 noise-bg relative tracking-normal selection:bg-blue-500/10 selection:text-blue-900 flex flex-col justify-between">
-      {/* SEO metadata overrides at the page level */}
-      <title>{`${project.title} Case Study | Stack&Scale`}</title>
-      <meta name="description" content={project.desc} />
 
       {/* ─── AMBIENT GLOW BACKDROP ────────────────────────── */}
       <div className="absolute top-0 left-0 w-full h-[55vh] bg-gradient-to-b from-blue-500/[0.02] to-transparent pointer-events-none z-0" />
       <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none" />
 
       {/* ─── NAVIGATION HEADER ────────────────────────────── */}
-      <motion.header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b ${
-          scrolled
-            ? 'bg-white/95 border-stone-200/80 shadow-sm py-3 backdrop-blur-xl'
-            : 'bg-transparent border-transparent py-4'
-        }`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <nav className="flex items-center justify-between px-6 max-w-7xl mx-auto w-full relative z-10">
-          <Link href="/">
-            <motion.div className="flex items-center gap-2.5 group cursor-pointer" whileHover={{ scale: 1.01 }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-stone-50 border border-stone-200 shadow-sm relative overflow-hidden group-hover:border-blue-600/30 transition-all duration-300">
-                <img src="/icon.png" alt="Stack & Scale Logo" className="w-5 h-5 object-contain" />
-              </div>
-              <span className="font-semibold text-base tracking-tight text-stone-900 font-heading">
-                Stack<span className="text-stone-500 font-light">&Scale</span>
-              </span>
-            </motion.div>
-          </Link>
-
-          {/* Centered Desktop Navigation */}
-          <div className="hidden lg:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
-            <div className="bg-stone-50 border border-stone-200 p-1 px-1.5 flex items-center gap-1 rounded-full relative shadow-[inset_0_1px_1px_rgba(255,255,255,0.01)]">
-              {[
-                { label: "Services", href: "/#services" },
-                { label: "Work", href: "/#portfolio" },
-                { label: "About", href: "/#about" }
-              ].map((link, idx) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="hover:text-blue-600 transition-colors duration-200 relative py-2 px-3.5 cursor-pointer rounded-full z-10 text-[11px] font-semibold uppercase tracking-wider text-stone-500"
-                  onMouseEnter={() => setHoveredIdx(idx)}
-                  onMouseLeave={() => setHoveredIdx(null)}
-                >
-                  <span className="relative z-10">{link.label}</span>
-                  {hoveredIdx === idx && (
-                    <motion.span
-                      layoutId="navHover"
-                      className="absolute inset-0 bg-stone-200/60 rounded-full z-0 border border-stone-300/30"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 380, damping: 28 }}
-                    />
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Side CTA */}
-          <div className="hidden lg:flex items-center gap-4">
-            <Link href="/contact">
-              <motion.button
-                className="bg-stone-900 text-stone-50 text-[10px] font-bold uppercase tracking-widest px-5 py-2.5 rounded-full border border-stone-900 transition-all duration-300 shadow-sm hover:bg-stone-850 cursor-pointer shrink-0"
-                whileTap={{ scale: 0.97 }}
-              >
-                Start a Project
-              </motion.button>
-            </Link>
-          </div>
-
-          {/* Mobile Hamburger Menu */}
-          <button
-            className="lg:hidden inline-flex items-center justify-center p-2 text-stone-500 hover:text-stone-900 focus:outline-none transition-colors touch-target"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" /></svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            )}
-          </button>
-        </nav>
-
-        {/* Mobile Dropdown Menu Canvas */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <>
-              <div 
-                className="fixed inset-0 top-[60px] bg-stone-900/10 backdrop-blur-sm z-40 lg:hidden"
-                onClick={() => setIsMenuOpen(false)}
-              />
-              <motion.div
-                className="lg:hidden w-full absolute top-full left-0 right-0 z-50 px-6 py-4"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
-                <div className="bg-white/95 backdrop-blur-xl border border-stone-200/80 rounded-2xl p-5 flex flex-col gap-3 shadow-xl z-50 relative">
-                  <Link href="/#services" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Services</Link>
-                  <Link href="/#portfolio" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">Work</Link>
-                  <Link href="/#about" onClick={() => setIsMenuOpen(false)} className="text-stone-600 hover:text-stone-900 transition-colors py-3.5 px-4 hover:bg-stone-50 rounded-xl text-xs font-semibold tracking-wider uppercase border-b border-stone-100/50 last:border-0">About</Link>
-                  <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-blue-600 hover:text-blue-700 transition-colors py-3.5 px-4 hover:bg-blue-50/50 rounded-xl text-xs font-bold tracking-wider uppercase">Contact Desk</Link>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </motion.header>
+      <Navbar />
 
       {/* ─── CASE STUDY LAYOUT CONTAINER ─────────────────────── */}
       <div className="flex-1 max-w-7xl mx-auto px-6 pt-28 pb-16 w-full relative z-10">
@@ -165,7 +38,11 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
             animate={animateTrigger ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-blue-600 font-mono text-[10px] uppercase tracking-widest font-semibold">{project.label}</span>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-blue-600 font-mono text-[10px] uppercase tracking-widest font-semibold">{project.label}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-[10px] font-mono text-amber-600 uppercase font-medium bg-amber-500/5 px-2.5 py-0.5 rounded border border-amber-500/10">Prototype / Under Active Engineering</span>
+            </div>
             <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-medium tracking-tight leading-[1.12] text-stone-900 font-heading">
               {project.title}
             </h1>
@@ -179,6 +56,19 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
                 </span>
               ))}
             </div>
+            {project.liveUrl && (
+              <div className="mt-2">
+                <a 
+                  href={project.liveUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs uppercase tracking-widest px-5 py-3 rounded-xl cursor-pointer shadow-md transition-colors w-fit"
+                >
+                  View Live Website
+                  <svg className="w-3.5 h-3.5 stroke-white stroke-[2.5]" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                </a>
+              </div>
+            )}
           </motion.div>
 
           <motion.div 
@@ -195,6 +85,23 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start text-left pt-8 border-t border-stone-200/60">
           {/* Left Column: Challenge & Solution */}
           <div className="lg:col-span-7 space-y-10">
+            {/* Prototype Banner */}
+            <motion.div
+              className="p-5 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex items-start gap-4 text-left shadow-[0_4px_20px_rgba(245,158,11,0.02)]"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.45 }}
+            >
+              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 font-bold text-sm shrink-0">
+                ⚠️
+              </div>
+              <div className="text-xs font-light text-stone-600 leading-relaxed">
+                <span className="font-semibold uppercase tracking-wider text-[10px] text-stone-900 block mb-0.5">Development Status: Prototype Deliverable</span>
+                This system represents a high-fidelity design and interface prototype delivered to the client for validation. Our engineering team is currently developing the backend integrations and full-scale system architecture.
+              </div>
+            </motion.div>
+
             <motion.div 
               className="space-y-4"
               initial={{ opacity: 0, y: 15 }}
