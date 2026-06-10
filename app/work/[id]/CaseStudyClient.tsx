@@ -1,8 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useLoaderSync } from '../../useLoaderSync';
 import { Project } from '../projectsData';
 import Navbar from '../../Navbar';
@@ -113,7 +112,7 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
               <p className="text-stone-600 text-sm font-semibold">{project.subtitle}</p>
             </motion.div>
 
-            {/* Performance Parameters Grid */}
+            {/* Prototype Specs Grid */}
             <motion.div 
               className="space-y-4"
               initial={{ opacity: 0, y: 15 }}
@@ -121,12 +120,12 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.45 }}
             >
-              <span className="text-[10px] uppercase tracking-wider font-mono text-blue-600 font-bold block">Performance Parameters</span>
+              <span className="text-[10px] uppercase tracking-wider font-mono text-blue-600 font-bold block">Prototype Design Specs</span>
               <div className="grid grid-cols-2 gap-4">
-                {project.metrics.map((m, idx) => (
+                {project.specs.map((spec, idx) => (
                   <div key={idx} className="p-4 rounded-2xl bg-white border border-stone-200 shadow-[inset_0_1px_1px_rgba(0,0,0,0.01)] hover:border-blue-500/10 transition-all">
-                    <p className="text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-1">{m.label}</p>
-                    <p className="text-sm font-bold text-stone-900 font-mono">{m.val}</p>
+                    <p className="text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-1">{spec.label}</p>
+                    <p className="text-sm font-bold text-stone-900 font-mono">{spec.val}</p>
                   </div>
                 ))}
               </div>
@@ -159,50 +158,8 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
             </motion.div>
           </div>
 
-          {/* Right Column: Lighthouse Indicators & Sequence Blueprint */}
+          {/* Right Column: Sequence Blueprint */}
           <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-24">
-            {/* Lighthouse Circular Progress Widgets */}
-            <motion.div 
-              className="p-6 rounded-2xl bg-white border border-stone-200 shadow-sm"
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.45 }}
-            >
-              <span className="text-[10px] uppercase tracking-wider font-mono text-blue-600 font-bold block mb-5 text-center sm:text-left">Lighthouse Metric Benchmarks</span>
-              <div className="grid grid-cols-4 gap-2 text-center">
-                {[
-                  { score: project.lighthouse.perf, title: "Performance" },
-                  { score: project.lighthouse.access, title: "Accessibility" },
-                  { score: project.lighthouse.best, title: "Best Practices" },
-                  { score: project.lighthouse.seo, title: "SEO" }
-                ].map((l, idx) => {
-                  return (
-                    <div key={idx} className="flex flex-col items-center gap-2">
-                      <div className="relative w-12 h-12 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
-                          <circle cx="36" cy="36" r="28" className="fill-none stroke-stone-100 stroke-[3.5]" />
-                          <motion.circle 
-                            cx="36" 
-                            cy="36" 
-                            r="28" 
-                            className="fill-none stroke-blue-600 stroke-[3.5]" 
-                            strokeDasharray="175.9" 
-                            initial={{ strokeDashoffset: 175.9 }}
-                            animate={{ strokeDashoffset: 175.9 - (175.9 * l.score) / 100 }}
-                            transition={{ duration: 1.2, ease: "easeOut", delay: idx * 0.1 }}
-                            strokeLinecap="round" 
-                          />
-                        </svg>
-                        <span className="absolute font-mono text-[10px] font-bold text-stone-900">{l.score}</span>
-                      </div>
-                      <span className="text-[8px] uppercase tracking-wider text-stone-500 font-semibold leading-tight">{l.title}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-
             {/* Sequence Blueprints Timeline */}
             <motion.div 
               className="space-y-4"
@@ -242,7 +199,7 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
             Need a high-performance system for your business?
           </h3>
           <p className="text-stone-500 text-xs sm:text-sm font-light max-w-md mx-auto mb-8 leading-relaxed">
-            Let's design and deploy custom, speed-optimized software tailored perfectly to your requirements and operations.
+            Let&apos;s design and deploy custom, speed-optimized software tailored perfectly to your requirements and operations.
           </p>
           <Link href="/contact">
             <motion.button 

@@ -12,13 +12,7 @@ export interface Project {
   subtitle: string;
   challenge: string;
   solution: string;
-  lighthouse: {
-    perf: number;
-    access: number;
-    best: number;
-    seo: number;
-  };
-  metrics: { label: string; val: string }[];
+  specs: { label: string; val: string }[];
   blueprint: { step: string; detail: string }[];
   liveUrl?: string;
 }
@@ -36,12 +30,11 @@ export const portfolioProjects: Project[] = [
     subtitle: "Elite Self-Drive & Luxury Chauffeur Mobility Portal",
     challenge: "Structuring a fluid dual-mode conversion funnel (Self-Drive vs. Taxi) while maintaining an ultra-premium aesthetic with fast media load times.",
     solution: "Built a dynamic state-driven layout with instant UI mode switches, structured lazy-loading for heavy vehicle media, and integrated a flat-rate pricing schema.",
-    lighthouse: { perf: 98, access: 100, best: 98, seo: 100 },
-    metrics: [
-      { label: "Daily Booking Inquiries", val: "+52.7%" },
-      { label: "Chauffeur Bookings", val: "450+ / Mo" },
-      { label: "Page Speed Index", val: "0.5s" },
-      { label: "Customer Retention Rate", val: "94%" }
+    specs: [
+      { label: "Booking Modes", val: "Self-Drive / Taxi" },
+      { label: "Payment Flow", val: "Razorpay Ready" },
+      { label: "Media Strategy", val: "Lazy Fleet Grid" },
+      { label: "Delivery Stage", val: "Prototype QA" }
     ],
     blueprint: [
       { step: "Dual-Mode Routing Engine", detail: "Developed custom React state managers that swap between Self-Drive (deposit validation) and Taxi (zero-liability fuel-included) interfaces instantly." },
@@ -79,12 +72,11 @@ export const portfolioProjects: Project[] = [
     subtitle: "Interactive Trading Education & Charting Portal",
     challenge: "Architecting a highly engaging student landing point with live simulated order streams and seamless communication flows to maximize enrollment conversions.",
     solution: "Developed a custom responsive layout with high-fidelity SVG interactive price charts, localized SEO variables, and a sticky WhatsApp consultant prompt.",
-    lighthouse: { perf: 100, access: 100, best: 100, seo: 100 },
-    metrics: [
-      { label: "Conversion Rate Increase", val: "+48.3%" },
-      { label: "WhatsApp Enquiries", val: "1,200+ / Mo" },
-      { label: "Page Speed Index", val: "0.4s" },
-      { label: "Student Retention Rate", val: "96%" }
+    specs: [
+      { label: "Lead Channel", val: "WhatsApp Intake" },
+      { label: "Chart Layer", val: "SVG Prototype" },
+      { label: "Content Model", val: "Course Funnel" },
+      { label: "Delivery Stage", val: "Prototype QA" }
     ],
     blueprint: [
       { step: "Interactive Chart Mockups", detail: "Engineered lightweight vector SVG charting layers representing XAUUSD live analysis setups." },
@@ -122,12 +114,11 @@ export const portfolioProjects: Project[] = [
     subtitle: "Exclusive Private Invitation & Member Directory Portal",
     challenge: "Constructing a secure, zero-friction application intake pipeline and animated landing interface with instant state transitions using lightweight serverless databases.",
     solution: "Configured real-time security rules in Supabase, built dynamic member verification pipelines, and engineered elegant CSS micro-animations and slide flows for step-based registration.",
-    lighthouse: { perf: 100, access: 100, best: 100, seo: 100 },
-    metrics: [
-      { label: "Invitation Conversion Rate", val: "+34.5%" },
-      { label: "Application Processing", val: "Instant" },
-      { label: "First Contentful Paint", val: "0.2s" },
-      { label: "Active Members Tracked", val: "500+" }
+    specs: [
+      { label: "Access Model", val: "Invite Only" },
+      { label: "Identity Layer", val: "Supabase Auth" },
+      { label: "Data Scope", val: "Member Directory" },
+      { label: "Delivery Stage", val: "Prototype QA" }
     ],
     blueprint: [
       { step: "Invitation Verification Node", detail: "Configured lightweight cryptographic token filters inside serverless database schemas to ensure invitation authenticity." },
