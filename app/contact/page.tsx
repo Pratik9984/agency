@@ -3,7 +3,15 @@ import ContactClient from './ContactClient';
 
 export const metadata: Metadata = {
   title: "Start a Project | Contact Stack&Scale",
-  description: "Get in touch with the Stack&Scale engineering team. Share your custom website, web application, or IT system requirements to receive a day-by-day milestone delivery roadmap in 24 hours.",
+  description: "Talk to the Stack&Scale team about your next custom web project.",
+  alternates: {
+    canonical: "https://stackandscale.in/contact",
+  },
+  openGraph: {
+    title: "Start a Project | Contact Stack&Scale",
+    description: "Talk to the Stack&Scale team about your next custom web project.",
+    url: "https://stackandscale.in/contact",
+  },
 };
 
 export default function ContactPage() {

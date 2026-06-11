@@ -1,7 +1,6 @@
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoaderSync } from '../useLoaderSync';
@@ -16,34 +15,28 @@ interface CroppedIllustrationProps {
 
 function CroppedIllustration({ panel, alt, className = '', priority = false }: CroppedIllustrationProps) {
   const positionMap = {
-    'top-left': { left: '0%', top: '0%' },
-    'top-center': { left: '-100%', top: '0%' },
-    'top-right': { left: '-200%', top: '0%' },
-    'bottom-left': { left: '0%', top: '-100%' },
-    'bottom-center': { left: '-100%', top: '-100%' },
-    'bottom-right': { left: '-200%', top: '-100%' },
+    'top-left': { backgroundPosition: '0% 0%' },
+    'top-center': { backgroundPosition: '50% 0%' },
+    'top-right': { backgroundPosition: '100% 0%' },
+    'bottom-left': { backgroundPosition: '0% 100%' },
+    'bottom-center': { backgroundPosition: '50% 100%' },
+    'bottom-right': { backgroundPosition: '100% 100%' },
   };
 
-  const { left, top } = positionMap[panel];
+  const { backgroundPosition } = positionMap[panel];
 
   return (
-    <div className={`relative w-full h-full overflow-hidden rounded-[18px] ${className}`}>
-      <Image
-        src="/main.png"
-        alt={alt}
-        width={1200}
-        height={800}
-        sizes="(max-width: 640px) 540px, (max-width: 1024px) 1020px, 1260px"
-        className="absolute max-w-none select-none pointer-events-none"
-        style={{
-          width: '300%',
-          height: '200%',
-          left,
-          top,
-        }}
-        priority={priority}
-      />
-    </div>
+    <div 
+      role="img"
+      aria-label={alt}
+      className={`w-full h-full rounded-[18px] bg-white select-none pointer-events-none ${className}`}
+      style={{
+        backgroundImage: "url('/main.png')",
+        backgroundSize: '300% 200%',
+        backgroundPosition,
+        backgroundRepeat: 'no-repeat',
+      }}
+    />
   );
 }
 

@@ -20,6 +20,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${project.title} Case Study | Stack&Scale`,
     description: project.desc,
+    alternates: {
+      canonical: `https://stackandscale.in/work/${project.slug}`,
+    },
+    openGraph: {
+      url: `https://stackandscale.in/work/${project.slug}`,
+    },
   };
 }
 

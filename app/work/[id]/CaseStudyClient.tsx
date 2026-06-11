@@ -224,7 +224,7 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
           </div>
           <span className="font-normal text-stone-500 normal-case text-center">© {new Date().getFullYear()} Stack&Scale. Custom business websites and IT solutions.</span>
           <div className="flex items-center gap-6 text-stone-500">
-            <a href="mailto:hello.stackandscale@gmail.com" className="hover:text-white transition-colors">Email</a>
+            <a href="mailto:hello@stackandscale.in" className="hover:text-white transition-colors">Email</a>
             <a href="https://wa.me/918421526195" className="hover:text-white transition-colors">WhatsApp</a>
             <a href="https://www.instagram.com/stack__and__scale" className="hover:text-white transition-colors">Instagram</a>
           </div>

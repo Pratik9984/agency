@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/icon.png",
   },
+  alternates: {
+    canonical: "https://stackandscale.in",
+  },
   openGraph: {
     title: "Stack&Scale | IT Solution Agency",
     description: "We build custom, high-performance websites and web applications for businesses to help them grow their business online and optimize operations.",

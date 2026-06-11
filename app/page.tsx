@@ -52,34 +52,28 @@ interface CroppedIllustrationProps {
 
 function CroppedIllustration({ panel, alt, className = '', priority = false }: CroppedIllustrationProps) {
   const positionMap = {
-    'top-left': { left: '0%', top: '0%' },
-    'top-center': { left: '-100%', top: '0%' },
-    'top-right': { left: '-200%', top: '0%' },
-    'bottom-left': { left: '0%', top: '-100%' },
-    'bottom-center': { left: '-100%', top: '-100%' },
-    'bottom-right': { left: '-200%', top: '-100%' },
+    'top-left': { backgroundPosition: '0% 0%' },
+    'top-center': { backgroundPosition: '50% 0%' },
+    'top-right': { backgroundPosition: '100% 0%' },
+    'bottom-left': { backgroundPosition: '0% 100%' },
+    'bottom-center': { backgroundPosition: '50% 100%' },
+    'bottom-right': { backgroundPosition: '100% 100%' },
   };
 
-  const { left, top } = positionMap[panel];
+  const { backgroundPosition } = positionMap[panel];
 
   return (
-    <div className={`relative w-full h-full overflow-hidden rounded-[18px] ${className}`}>
-      <Image
-        src="/main.png"
-        alt={alt}
-        width={1200}
-        height={800}
-        sizes="(max-width: 640px) 540px, (max-width: 1024px) 1020px, 1260px"
-        className="absolute max-w-none select-none pointer-events-none"
-        style={{
-          width: '300%',
-          height: '200%',
-          left,
-          top,
-        }}
-        priority={priority}
-      />
-    </div>
+    <div 
+      role="img"
+      aria-label={alt}
+      className={`w-full h-full rounded-[18px] bg-white select-none pointer-events-none ${className}`}
+      style={{
+        backgroundImage: "url('/main.png')",
+        backgroundSize: '300% 200%',
+        backgroundPosition,
+        backgroundRepeat: 'no-repeat',
+      }}
+    />
   );
 }
 
@@ -286,11 +280,12 @@ const toolkitItems: ToolkitItem[] = [
   }
 ];
 
-const testimonials = [
-  { quote: "Stack&Scale got our clinic website loading instantly. Patients started booking appointments online the next week. No more complex setup.", author: "Dr. Aditya Sen", role: "Lotus Health Clinic", initials: "AS" },
-  { quote: "We needed a fast checkout that doesn't disconnect customers. The checkout setup Stack&Scale built using Stripe integration works perfectly on mobile.", author: "Founder & CEO", role: "Aura Crafted Products", initials: "AC" },
-  { quote: "Our logistics business needed a fast local landing page. Stack&Scale optimized our sitemaps and schemas, and we are already seeing more local search traffic.", author: "Operations Manager", role: "Apex Logistics Ltd.", initials: "AL" }
-];
+const featuredTestimonial = {
+  quote: "Stack&Scale got our clinic website loading instantly. Patients started booking appointments online the next week. No more complex setup.",
+  author: "Dr. Aditya Sen",
+  role: "Lotus Health Clinic",
+  initials: "AS"
+};
 
 export default function Home() {
   const animateTrigger = useLoaderSync();
@@ -344,7 +339,6 @@ export default function Home() {
   const [addonPayment, setAddonPayment] = useState(false);
   const [mobileStep, setMobileStep] = useState(1);
 
-  const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [activeServiceIdx, setActiveServiceIdx] = useState(0);
   const handleServicesScroll = (e: any) => {
     const scrollLeft = e.currentTarget.scrollLeft;
@@ -519,15 +513,6 @@ export default function Home() {
     };
   }, [activeServiceDetail]);
 
-  // Testimonials Auto-play timer (6 seconds)
-  useEffect(() => {
-    if (testimonials.length < 3) return;
-    const timer = setInterval(() => {
-      setTestimonialIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
-
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     const handleMouseMove = (e: MouseEvent) => {
@@ -683,15 +668,15 @@ export default function Home() {
           {/* Left Column: Content */}
           <div className="relative lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left w-full">
             {/* Mobile Transparent Illustration Background */}
-            <div className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[480px] aspect-[3/2] pointer-events-none lg:hidden -z-10 opacity-[0.28] blur-[0.2px]">
-              <Image
-                src="/main.png"
-                alt=""
-                fill
-                sizes="480px"
-                className="object-contain select-none"
-              />
-            </div>
+            <div 
+              className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[480px] aspect-[3/2] pointer-events-none lg:hidden -z-10 opacity-[0.28] blur-[0.2px]"
+              style={{
+                backgroundImage: "url('/main.png')",
+                backgroundSize: 'contain',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
             <motion.div
               variants={staggerItem}
               className="inline-flex items-center gap-2 mb-6 px-4.5 py-2 rounded-full bg-stone-50/80 border border-stone-200/80 text-[11px] sm:text-xs font-semibold text-stone-600 uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md"
@@ -756,7 +741,7 @@ export default function Home() {
                   src="/main.png"
                   alt="Stack&Scale Technology Illustration"
                   fill
-                  sizes="(max-width: 640px) 240px, (max-width: 1024px) 320px, 500px"
+                  sizes="100vw"
                   className="object-contain select-none pointer-events-none bg-white"
                   priority
                 />
@@ -1104,7 +1089,7 @@ export default function Home() {
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-4 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Optimization Diagnostics</span>
               <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">Analyze your current <span className="font-serif italic font-light text-blue-600">website speed.</span></h2>
-              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a genuine inline scan of your system's Core Web Vitals directly inside this page powered by our high-speed proprietary AI diagnostics.</p>
+              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-md">Sub-optimal layout performance directly compromises customer acquisition and search indexing. Input your URL below to run a genuine inline scan of your system's Core Web Vitals directly inside this page, powered by Google PageSpeed Insights and Groq AI.</p>
 
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="bottom-left" alt="Diagnostics Magnifier Illustration" />
@@ -1126,7 +1111,7 @@ export default function Home() {
                   </motion.button>
                 </form>
                 <p className="text-[10px] text-stone-500 font-light -mt-2 mb-6 text-left">
-                  We connect directly to our proprietary diagnostic clusters—speed metrics are calculated and analyzed inline below, without opening external tabs.
+                  We connect directly to the Google PageSpeed Insights API—speed metrics are calculated and analyzed inline below, without opening external tabs.
                 </p>
 
                 <AnimatePresence mode="wait">
@@ -1773,75 +1758,39 @@ export default function Home() {
             {/* Left Column: Heading and Illustration */}
             <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
               <span className="inline-block px-4 py-1.5 rounded-full bg-stone-50 border border-stone-200 text-blue-600 font-semibold text-[10px] uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(37,99,235,0.03)] backdrop-blur-md">Reviews</span>
-              <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">What our clients <span className="font-serif italic font-light text-blue-600">actually say.</span></h2>
-              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-sm">Read raw feedback from regional brands, medical clinic founders, and local businesses.</p>
+              <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-stone-900 mb-4 font-heading leading-tight">What our clients <span className="font-serif italic font-light text-blue-600">say.</span></h2>
+              <p className="text-stone-600 text-sm leading-relaxed font-light mb-8 max-w-sm">Read verified feedback from client teams who partnered with Stack&Scale to optimize their systems.</p>
 
               <div className="w-full max-w-[280px] aspect-[4/3] bg-white border border-stone-200 p-1.5 rounded-[24px] shadow-sm overflow-hidden hidden lg:block">
                 <CroppedIllustration panel="top-right" alt="Chatbot Conversation Illustration" />
               </div>
             </div>
 
-            {/* Right Column: Testimonial Card */}
+            {/* Right Column: Featured Testimonial Card */}
             <div className="lg:col-span-7 w-full">
-              <div className="max-w-2xl mx-auto relative">
-                <AnimatePresence mode="wait">
-                  {testimonials.filter((_, idx) => idx === testimonialIdx).map((testimonial) => (
-                    <motion.div
-                      key={testimonial.author}
-                      drag={testimonials.length >= 3 ? "x" : false}
-                      dragConstraints={{ left: 0, right: 0 }}
-                      dragElastic={0.2}
-                      onDragEnd={(e, info) => {
-                        if (testimonials.length < 3) return;
-                        const swipeThreshold = 55;
-                        if (info.offset.x < -swipeThreshold) {
-                          setTestimonialIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
-                        } else if (info.offset.x > swipeThreshold) {
-                          setTestimonialIdx((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
-                        }
-                      }}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="relative overflow-hidden flex flex-col justify-between min-h-[180px] cursor-grab active:cursor-grabbing select-none touch-pan-y text-left py-4"
-                    >
-                      <div className="absolute top-2 right-4 text-blue-600/10 pointer-events-none">
-                        <svg className="w-16 h-16 fill-current" viewBox="0 0 24 24">
-                          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.988zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                        </svg>
-                      </div>
-
-                      <div>
-                        <p className="text-stone-800 text-lg sm:text-xl font-light italic leading-relaxed pr-12 text-left font-heading">
-                          "{testimonial.quote}"
-                        </p>
-                      </div>
-
-                      <div className="mt-6 pt-5 border-t border-stone-200/60">
-                        <h4 className="font-semibold text-stone-900 text-sm tracking-tight">{testimonial.author}</h4>
-                        <p className="text-stone-500 text-[10px] uppercase tracking-widest mt-0.5">{testimonial.role}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-
-              {testimonials.length >= 3 && (
-                <div className="flex items-center justify-center gap-4 mt-10">
-                  <button onClick={() => setTestimonialIdx((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))} className="w-10 h-10 border border-stone-200 bg-stone-50/50 hover:border-stone-300 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 transition-all cursor-pointer text-sm">←</button>
-                  <div className="flex gap-1.5">
-                    {testimonials.map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === testimonialIdx ? 'bg-blue-600 w-3' : 'bg-stone-200'
-                          }`}
-                      />
-                    ))}
-                  </div>
-                  <button onClick={() => setTestimonialIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1))} className="w-10 h-10 border border-stone-200 bg-stone-50/50 hover:border-stone-300 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-900 transition-all cursor-pointer text-sm">→</button>
+              <div className="max-w-2xl mx-auto relative p-8 sm:p-10 rounded-[28px] bg-white border border-stone-200 shadow-[0_15px_45px_rgba(28,25,23,0.02)] overflow-hidden">
+                <div className="absolute top-6 right-8 text-blue-600/10 pointer-events-none select-none">
+                  <svg className="w-20 h-20 fill-current" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.988zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                  </svg>
                 </div>
-              )}
+
+                <div className="flex flex-col gap-6">
+                  <p className="text-stone-850 text-base sm:text-lg font-light italic leading-relaxed pr-8 text-left font-heading">
+                    "{featuredTestimonial.quote}"
+                  </p>
+
+                  <div className="pt-6 border-t border-stone-100 flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-full bg-blue-500/5 border border-blue-500/10 flex items-center justify-center text-blue-600 font-bold font-heading text-xs shadow-sm select-none">
+                      {featuredTestimonial.initials}
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-semibold text-stone-900 text-sm tracking-tight">{featuredTestimonial.author}</h4>
+                      <p className="text-stone-500 text-[10px] uppercase tracking-widest mt-0.5">{featuredTestimonial.role}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
