@@ -26,7 +26,7 @@ function CroppedIllustration({ panel, alt, className = '', priority = false }: C
   const { backgroundPosition } = positionMap[panel];
 
   return (
-    <div 
+    <div
       role="img"
       aria-label={alt}
       className={`w-full h-full rounded-[18px] bg-white select-none pointer-events-none ${className}`}
@@ -53,7 +53,7 @@ export default function ContactClient() {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: "c6e93123-fd49-4c99-bb4e-0e899425a7fc",
+          access_key: "74f513ee-b0f0-4b1d-9238-607167b80978",
           subject: `New Project Scope Filed by ${formData.name}`,
           name: formData.name,
           phone: formData.phone || "Not provided",
@@ -303,7 +303,7 @@ export default function ContactClient() {
             </div>
             <span className="font-semibold text-xs text-white font-heading tracking-tight">Stack<span className="text-stone-400 font-light">&Scale</span></span>
           </div>
-          <span className="font-normal text-stone-500 normal-case text-center">© {new Date().getFullYear()} Stack&Scale. Built to grow businesses online.</span>
+          <span className="font-normal text-stone-500 normal-case text-center">© 2026 Stack and Scale. Web development agency based in Pune, India.</span>
           <div className="flex items-center gap-6 text-stone-500">
             <a href="mailto:hello@stackandscale.in" className="hover:text-white transition-colors">Email</a>
             <a href="https://wa.me/918421526195" className="hover:text-white transition-colors">WhatsApp</a>
